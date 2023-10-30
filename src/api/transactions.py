@@ -18,10 +18,11 @@ class NewTransaction(BaseModel):
 @router.get("/{user_id}/transactions", tags=["transactions"])
 def get_transactions(user_id: int):
     """ """
-    ans = None
+    ans = []
 
     try: 
         with db.engine.begin() as connection:
+            # ans stores query result as list of dictionaries/json
             ans = connection.execute(
                 sqlalchemy.text(
                     """
@@ -35,6 +36,7 @@ def get_transactions(user_id: int):
 
     print(f"USER_{user_id}_TRANSACTIONS: {ans}")
 
+    # ex: [{"merchant": "Walmart", "description": "got groceries", "created_at": "2021-05-01 12:00:00"}, ...]
     return ans
 
 
