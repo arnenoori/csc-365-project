@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
-from enum import Enum
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions",
