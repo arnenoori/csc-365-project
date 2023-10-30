@@ -7,7 +7,8 @@ from sqlalchemy.exc import DBAPIError
 from enum import Enum
 
 router = APIRouter(
-    tags=["cart"],
+    prefix="/user/{user_id}/transactions",
+    tags=["transaction"],
     dependencies=[Depends(auth.get_api_key)],
 )
 
@@ -15,7 +16,7 @@ class NewTransaction(BaseModel):
     merchant: str
     description: str
 
-@router.get("/{user_id}/transactions", tags=["transactions"])
+@router.get("/", tags=["transaction"])
 def get_transactions(user_id: int):
     """ """
     ans = []
@@ -40,7 +41,7 @@ def get_transactions(user_id: int):
     return ans
 
 
-@router.post("/{user_id}/transactions", tags=["transactions"])
+@router.post("/", tags=["transaction"])
 def create_transaction(user_id: int, transaction: NewTransaction):
     """ """
     merchant = transaction.merchant
