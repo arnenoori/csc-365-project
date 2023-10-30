@@ -1,25 +1,60 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+from pydantic import BaseModel
+from src.api import auth
 import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
+from enum import Enum
 
-router = APIRouter()
+router = APIRouter(
+    tags=["cart"],
+    dependencies=[Depends(auth.get_api_key)],
+)
 
-@router.get("/transaction/{user_id}", tags=["transaction"])
+class NewTransaction(BaseModel):
+    merchant: str
+    description: str
+
+@router.get("/{user_id}/transactions", tags=["transactions"])
 def get_transactions(user_id: int):
-    result = None
+    """ """
+    ans = None
 
     try: 
         with db.engine.begin() as connection:
-            result = connection.execute(
+            ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT merchant, description, created_AT
-                    FROM Transactions
+                    SELECT merchant, description, created_at
+                    FROM transactions
                     where user_id = :user_id
                     """
-                ), [{"user_id": user_id}])
+                ), [{"user_id": user_id}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
-    return result.fetchall()
+    print(f"USER_{user_id}_TRANSACTIONS: {ans}")
+
+    return ans
+
+
+@router.post("/{user_id}/transactions", tags=["transactions"])
+def create_transaction(user_id: int, transaction: NewTransaction):
+    """ """
+    merchant = transaction.merchant
+    description = transaction.description
+
+    try: 
+        with db.engine.begin() as connection:
+            transaction_id = connection.execute(
+                sqlalchemy.text(
+                    """
+                    INSERT INTO transactions (user_id, merchant, description)
+                    VALUES (:user_id, :merchant, :description)
+                    RETURNING id
+                    """
+                ), [{"user_id": user_id, "merchant": merchant, "description": description}]).scalar_one().id
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    return {"transaction_id": transaction_id}
