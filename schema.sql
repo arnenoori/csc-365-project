@@ -6,7 +6,7 @@ create table
     price double precision not null,
     category text null,
     warranty_date text null,
-    return_date time without time zone null,
+    return_date text null,
     constraint Purchase_pkey primary key (id),
     constraint purchases_transaction_id_fkey foreign key (transaction_id) references transactions (id) on update cascade on delete cascade
   ) tablespace pg_default;
