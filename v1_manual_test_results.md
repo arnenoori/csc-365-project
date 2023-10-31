@@ -78,12 +78,33 @@ curl -X 'POST' \
 }
 ```
 
-
 ## 2.1 Curl Statement
+```json
+curl -X 'POST' \
+  'https://test-webapp-0law.onrender.com/user/3/transactions/' \
+  -H 'accept: application/json' \
+  -H 'access_token: 24tkvO0BQSYaWtDf' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "merchant": "Amazon",
+  "description": "Book Purchase"
+}'
+```
 
 ## 2.2 Response Received
 
 ## 3.1 Curl Statement
+```json
+curl -X 'POST' \
+  'https://test-webapp-0law.onrender.com/user/3/transactions/' \
+  -H 'accept: application/json' \
+  -H 'access_token: 24tkvO0BQSYaWtDf' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "merchant": "Walmart",
+  "description": "Groceries"
+}'
+```
 
 ## 3.2 Response Received
 

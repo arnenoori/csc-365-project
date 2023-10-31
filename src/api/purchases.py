@@ -61,7 +61,7 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
                     VALUES (:transaction_id, :item, :price, :category, :warranty_date, :return_date)
                     RETURNING id
                     """
-                ), [{"transaction_id": transaction_id, "item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date}]).scalar_one().id
+                ), [{"transaction_id": transaction_id, "item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
