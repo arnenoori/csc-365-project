@@ -14,7 +14,6 @@ router = APIRouter(
 class NewUser(BaseModel):
     name: str
     email: str
-    password: str
 
 @router.post("/", tags=["user"])
 def create_user(new_user: NewUser):

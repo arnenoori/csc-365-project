@@ -2,40 +2,55 @@
 
 ## Example Flow 1: User Logs a Purchase
 
-**Scenario:** Alice wants to manually log her purchases to maintain a detailed record.
+**Scenario:** Alice wants to sign up and log her first purchases.
 
-1. **Authenticate the user**
+1. **Instantiate the user**
     ```json
-    POST /auth/signin
+    POST /user
     {
-      "email": "alice@example.com",
-      "password": "securepassword123"
+      "name": "Alice",
+      "email": "alice@example.com"
     }
     ```
 
-2. **Manually add a purchase**
+2. **Manually add a transaction**
     ```json
-    POST /purchase
+    POST /user/{user_id}/transactions
     {
-      "item_name": "Groceries",
-      "amount": 25.50,
-      "category": "Food",
-      "date": "2023-10-22"
+      "merchant": "Amazon",
+      "description": "Book Purchase"
     }
     ```
 
-3. **Upload a receipt image**
+3. **Manually add another transaction**
     ```json
-    POST /receipt
+    POST /user/{user_id}/transactions
     {
-      "image": "image.jpg",
-      "purchase_id": 1
+      "merchant": "Walmart",
+      "description": "Groceries"
     }
     ```
 
-4. **Retrieve the latest purchase**
+4. **Manually add a purchase**
     ```json
-    GET /purchase?latest=true
+    POST /user/{user_id}/transactions/{transaction_id}/purchases
+    {
+      "item": "Novel",
+      "price": 15.99,
+      "category": "Books",
+      "warranty_date": "2025-05-01",
+      "return_date": "2023-12-15"
+    }
+    ```
+
+4. **Retrieve her transactions**
+    ```json
+    GET /user/{user_id}/transactions
+    ```
+
+5. **Retrieve her purchases**
+    ```json
+    GET /user/{user_id}/transactions/{transaction_id}/purchases
     ```
 
 ## Example Flow 2: User Reviews Purchase History
