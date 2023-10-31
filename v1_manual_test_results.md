@@ -2,7 +2,7 @@
 
 ## Example Flow 1: User Logs a Purchase
 
-**Scenario:** Alice wants to sign up and log her first purchases.
+**Scenario:** Alice wants to sign up and log her first transactions and purchases.
 
 1. **Instantiate the user**
     ```json
@@ -98,7 +98,6 @@ curl -X 'POST' \
 }
 ```
 
-
 ## 3.1 Curl Statement
 ```json
 curl -X 'POST' \
@@ -167,6 +166,22 @@ curl -X 'GET' \
 ```
 
 ## 6.1 Curl Statement
+```json
+curl -X 'GET' \
+  'https://test-webapp-0law.onrender.com/user/3/purchases/?transaction_id=3' \
+  -H 'accept: application/json' \
+  -H 'access_token: 24tkvO0BQSYaWtDf'
+```
 
 ## 6.2 Response Received
-
+```json
+[
+  {
+    "item": "Novel",
+    "price": 15.99,
+    "category": "Books",
+    "warranty_date": "2025-05-01",
+    "return_date": "2025-05-01"
+  }
+]
+```
