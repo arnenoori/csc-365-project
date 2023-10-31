@@ -6,7 +6,7 @@ from src import database as db
 from sqlalchemy.exc import DBAPIError
 
 router = APIRouter(
-    prefix="/user/{user_id}/transactions/{transaction_id}/purchases",
+    prefix="/user/{user_id}/purchases",
     tags=["purchase"],
     dependencies=[Depends(auth.get_api_key)],
 )
