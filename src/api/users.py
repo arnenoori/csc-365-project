@@ -17,11 +17,10 @@ class NewUser(BaseModel):
     password: str
 
 @router.post("/", tags=["user"])
-def create_cart(new_user: NewUser):
+def create_user(new_user: NewUser):
     """ """
     name = new_user.name
     email = new_user.email
-    password = new_user.password
 
     try:
         with db.engine.begin() as connection:
