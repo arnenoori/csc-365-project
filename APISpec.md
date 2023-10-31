@@ -64,7 +64,7 @@ Creates a new transaction for a specified user.
 
 ## 3. Purchases
 
-### 3.1 Get Purchases - '/user/{user_id}/transactions/{transaction_id}/purchases/' (GET)
+### 3.1 Get Purchases - '/user/{user_id}/purchases/' (GET)
 
 Retrieves the purchases related to a specified transaction for a user.
 
