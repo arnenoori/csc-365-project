@@ -55,3 +55,42 @@
 
 
 # Testing Results 
+
+## 1.1 Curl statement
+
+```json
+curl -X 'POST' \
+  'https://test-webapp-0law.onrender.com/user/' \
+  -H 'accept: application/json' \
+  -H 'access_token: 24tkvO0BQSYaWtDf' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "Alice",
+  "email": "alice@example.com"
+}'
+```
+
+## 1.2 Response received
+
+```json
+{
+  "user_id": 3
+}
+```
+
+
+## 2.1 Curl Statement
+
+## 2.2 Response Received
+
+## 3.1 Curl Statement
+
+## 3.2 Response Received
+
+## 4.1 Curl Statement
+
+## 4.2 Response Received
+
+## 5.1 Curl Statement
+
+## 5.2 Response Received

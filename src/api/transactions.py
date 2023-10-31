@@ -55,7 +55,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
                     VALUES (:user_id, :merchant, :description)
                     RETURNING id
                     """
-                ), [{"user_id": user_id, "merchant": merchant, "description": description}]).scalar_one().id
+                ), [{"user_id": user_id, "merchant": merchant, "description": description}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
