@@ -30,7 +30,7 @@ def create_user(new_user: NewUser):
                     VALUES (:name, :email)
                     RETURNING id
                     """
-                ), [{"name": name, "email": email}]).scalar_one().id
+                ), [{"name": name, "email": email}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
