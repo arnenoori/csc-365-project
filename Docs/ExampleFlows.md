@@ -43,12 +43,12 @@
     }
     ```
 
-4. **Retrieve her transactions**
+5. **Retrieve her transactions**
     ```json
     GET /user/{user_id}/transactions
     ```
 
-5. **Retrieve her purchases**
+6. **Retrieve her purchases**
     ```json
     GET /user/{user_id}/transactions/{transaction_id}/purchases
     ```
