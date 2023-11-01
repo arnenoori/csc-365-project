@@ -15,6 +15,7 @@ class NewUser(BaseModel):
     name: str
     email: str
 
+# creates a new user
 @router.post("/", tags=["user"])
 def create_user(new_user: NewUser):
     """ """
@@ -37,6 +38,9 @@ def create_user(new_user: NewUser):
     return {"user_id": user_id}
 
 
+
+
+# gets a user's name and email
 @router.get("/{user_id}", tags=["user"])
 def get_user(user_id: int):
     """ """
@@ -59,6 +63,7 @@ def get_user(user_id: int):
     # ex: {"name": "John Doe", "email": "jdoe@gmail"}
     return ans
 
+# deletes a user
 @router.delete("/{user_id}", tags=["user"])
 def delete_user(user_id: int):
     """ """
@@ -74,8 +79,9 @@ def delete_user(user_id: int):
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
-    return {"user_id": user_id}
+    return "OK"
 
+# updates a user's name and email
 @router.put("/{user_id}", tags=["user"])
 def update_user(user_id: int, new_user: NewUser):
     """ """
@@ -95,4 +101,4 @@ def update_user(user_id: int, new_user: NewUser):
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
-    return {"user_id": user_id}
+    return {"name": name, "email": email}
