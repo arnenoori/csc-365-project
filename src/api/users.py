@@ -35,3 +35,64 @@ def create_user(new_user: NewUser):
         print(f"Error returned: <<<{error}>>>")
 
     return {"user_id": user_id}
+
+
+@router.get("/{user_id}", tags=["user"])
+def get_user(user_id: int):
+    """ """
+    try:
+        with db.engine.begin() as connection:
+            # ans stores query result as dictionary/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT name, email
+                    FROM users
+                    WHERE id = :user_id
+                    """
+                ), [{"user_id": user_id}]).mappings().scalar_one()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}: {ans}")
+
+    # ex: {"name": "John Doe", "email": "jdoe@gmail"}
+    return ans
+
+@router.delete("/{user_id}", tags=["user"])
+def delete_user(user_id: int):
+    """ """
+    try:
+        with db.engine.begin() as connection:
+            connection.execute(
+                sqlalchemy.text(
+                    """
+                    DELETE FROM users
+                    WHERE id = :user_id
+                    """
+                ), [{"user_id": user_id}])
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    return {"user_id": user_id}
+
+@router.put("/{user_id}", tags=["user"])
+def update_user(user_id: int, new_user: NewUser):
+    """ """
+    name = new_user.name
+    email = new_user.email
+
+    try:
+        with db.engine.begin() as connection:
+            connection.execute(
+                sqlalchemy.text(
+                    """
+                    UPDATE users
+                    SET name = :name, email = :email
+                    WHERE id = :user_id
+                    """
+                ), [{"user_id": user_id, "name": name, "email": email}])
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    return {"user_id": user_id}
