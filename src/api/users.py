@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
@@ -57,6 +57,8 @@ def get_user(user_id: int):
                 ), [{"user_id": user_id}]).mappings().scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+    if not ans: raise HTTPException(status_code=404, detail="User not found")
 
     print(f"USER_{user_id}: {ans}")
 
