@@ -21,6 +21,7 @@ def create_user(new_user: NewUser):
     """ """
     name = new_user.name
     email = new_user.email
+    user_id = None
 
     try:
         with db.engine.begin() as connection:
@@ -54,7 +55,7 @@ def get_user(user_id: int):
                     FROM users
                     WHERE id = :user_id
                     """
-                ), [{"user_id": user_id}]).mappings().scalar_one()
+                ), [{"user_id": user_id}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 

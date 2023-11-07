@@ -79,7 +79,7 @@ def get_transaction(user_id: int, transaction_id: int):
                     FROM transactions
                     WHERE id = :transaction_id
                     """
-                ), [{"transaction_id": transaction_id}]).mappings().scalar_one()
+                ), [{"transaction_id": transaction_id}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
