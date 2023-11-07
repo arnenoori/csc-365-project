@@ -55,7 +55,7 @@ def get_user(user_id: int):
                     FROM users
                     WHERE id = :user_id
                     """
-                ), [{"user_id": user_id}]).scalar_one()
+                ), [{"user_id": user_id}]).scalar_one().to_dict()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
