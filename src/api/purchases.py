@@ -128,7 +128,7 @@ def get_purchase(user_id: int, transaction_id: int, purchase_id: int):
                     FROM purchases
                     WHERE id = :purchase_id
                     """
-                ), [{"purchase_id": purchase_id}]).first().to_dict()
+                ), [{"purchase_id": purchase_id}]).mappings().all()[0]
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
