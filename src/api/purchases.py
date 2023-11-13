@@ -4,6 +4,8 @@ from src.api import auth
 import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
+from datetime import datetime
+from fastapi import HTTPException
 
 router = APIRouter(
     prefix="/user/{user_id}/purchases",
@@ -44,30 +46,37 @@ def get_purchases(user_id: int, transaction_id: int):
     return ans
 
 # creates a new purchase for a user
+
 @router.post("/", tags=["purchase"])
 def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     """ """
     item = purchase.item
-    price = purchase.price
-    category = purchase.category
+    price = float(purchase.price)
+    quantity = purchase.quantity
     warranty_date = purchase.warranty_date
     return_date = purchase.return_date
+
+    # Validate date values
+    try:
+        datetime.strptime(warranty_date, '%Y-%m-%d')
+        datetime.strptime(return_date, '%Y-%m-%d')
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format")
 
     try: 
         with db.engine.begin() as connection:
             purchase_id = connection.execute(
                 sqlalchemy.text(
                     """
-                    INSERT INTO purchases (transaction_id, item, price, category, warranty_date, return_date)
-                    VALUES (:transaction_id, :item, :price, :category, :warranty_date, :return_date)
+                    INSERT INTO purchases (transaction_id, item, price, quantity, warranty_date, return_date)
+                    VALUES (:transaction_id, :item, :price, :quantity, :warranty_date, :return_date)
                     RETURNING id
                     """
-                ), [{"transaction_id": transaction_id, "item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date}]).scalar_one()
+                ), [{"transaction_id": transaction_id, "item": item, "price": price, "quantity": quantity, "warranty_date": warranty_date, "return_date": return_date}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
     return {"purchase_id": purchase_id}
-
 
 
 

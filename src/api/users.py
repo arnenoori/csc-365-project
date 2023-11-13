@@ -23,6 +23,17 @@ def create_user(new_user: NewUser):
     email = new_user.email
     user_id = None
 
+    # Check if email already exists
+    with db.engine.begin() as connection:
+        result = connection.execute(
+            sqlalchemy.text(
+                """
+                SELECT id FROM users WHERE email = :email
+                """
+            ), [{"email": email}]).fetchone()
+        if result is not None:
+            raise HTTPException(status_code=400, detail="Email already in use")
+
     try:
         with db.engine.begin() as connection:
             user_id = connection.execute(
@@ -37,7 +48,6 @@ def create_user(new_user: NewUser):
         print(f"Error returned: <<<{error}>>>")
 
     return {"user_id": user_id}
-
 
 
 
@@ -91,6 +101,17 @@ def update_user(user_id: int, new_user: NewUser):
     name = new_user.name
     email = new_user.email
 
+    # Check if new email already exists
+    with db.engine.begin() as connection:
+        result = connection.execute(
+            sqlalchemy.text(
+                """
+                SELECT id FROM users WHERE email = :email
+                """
+            ), [{"email": email}]).fetchone()
+        if result is not None and result['id'] != user_id:
+            raise HTTPException(status_code=400, detail="Email already in use")
+
     try:
         with db.engine.begin() as connection:
             connection.execute(
@@ -100,7 +121,7 @@ def update_user(user_id: int, new_user: NewUser):
                     SET name = :name, email = :email
                     WHERE id = :user_id
                     """
-                ), [{"user_id": user_id, "name": name, "email": email}])
+                ), [{"name": name, "email": email, "user_id": user_id}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
