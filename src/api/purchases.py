@@ -44,7 +44,7 @@ def get_purchases(user_id: int, transaction_id: int):
     return ans
 
 # gets sum of money spent of different catagories of all purchases for a user
-@router.get("/catagories", tags=["purchase"])
+@router.get("/categories", tags=["purchase"])
 def get_purchases(user_id: int, transaction_id: int):
     """ """
     ans = []
@@ -55,10 +55,10 @@ def get_purchases(user_id: int, transaction_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price)
+                    SELECT category, SUM(price) AS total
                     FROM purchases
                     WHERE transaction_id = :transaction_id
-                    GROUP BY catagory
+                    GROUP BY category
                     """
                 ), [{"transaction_id": transaction_id}]).mappings().all()
     except DBAPIError as error:
