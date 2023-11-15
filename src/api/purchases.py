@@ -45,6 +45,32 @@ def get_purchases(user_id: int, transaction_id: int):
     # ex: [{"item": "TV", "price": 500.00, "category": "Electronics", "warranty_date": "2022-05-01", "return_date": "2021-06-01"}, ...]
     return ans
 
+# gets sum of money spent of different catagories of all purchases for a user
+@router.get("/categories", tags=["purchase"])
+def get_purchases(user_id: int, transaction_id: int):
+    """ """
+    ans = []
+
+    try: 
+        with db.engine.begin() as connection:
+            # ans stores query result as list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT category, SUM(price) AS total
+                    FROM purchases
+                    WHERE transaction_id = :transaction_id
+                    GROUP BY category
+                    """
+                ), [{"transaction_id": transaction_id}]).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
+
+    return ans
+
+
 # creates a new purchase for a user
 
 @router.post("/", tags=["purchase"])
