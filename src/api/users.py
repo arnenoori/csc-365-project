@@ -32,7 +32,7 @@ def create_user(new_user: NewUser):
                 """
             ), [{"email": email}]).fetchone()
         if result is not None:
-            raise HTTPException(status_code=400, detail="Email already in use")
+            raise HTTPException(status_code=409, detail="Email already in use")
 
     try:
         with db.engine.begin() as connection:
@@ -101,19 +101,19 @@ def update_user(user_id: int, new_user: NewUser):
     name = new_user.name
     email = new_user.email
 
-    # Check if new email already exists
-    with db.engine.begin() as connection:
-        result = connection.execute(
-            sqlalchemy.text(
-                """
-                SELECT id FROM users WHERE email = :email
-                """
-            ), [{"email": email}]).fetchone()
-        if result is not None and result['id'] != user_id:
-            raise HTTPException(status_code=400, detail="Email already in use")
-
     try:
+        # Check if new email already exists
         with db.engine.begin() as connection:
+            result = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id FROM users WHERE email = :email
+                    """
+                ), [{"email": email}]).fetchone()
+            
+            if result is not None and result['id'] != user_id:
+                raise HTTPException(status_code=409, detail="Email already in use")
+        
             connection.execute(
                 sqlalchemy.text(
                     """

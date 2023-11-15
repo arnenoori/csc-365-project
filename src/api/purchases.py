@@ -34,7 +34,8 @@ def get_purchases(user_id: int, transaction_id: int):
                     """
                     SELECT item, price, category, warranty_date, return_date
                     FROM purchases
-                    WHERE transaction_id = :transaction_id
+                    JOIN transactions ON purchases.transaction_id = transactions.id
+                    WHERE transaction_id = :transaction_id AND user_id = :user_id
                     """
                 ), [{"transaction_id": transaction_id}]).mappings().all()
     except DBAPIError as error:
@@ -46,7 +47,6 @@ def get_purchases(user_id: int, transaction_id: int):
     return ans
 
 # creates a new purchase for a user
-
 @router.post("/", tags=["purchase"])
 def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     """ """
@@ -63,8 +63,18 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format")
 
-    try: 
+    try:
         with db.engine.begin() as connection:
+            # check if transaction belongs to user
+            result = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id FROM transactions WHERE id = :transaction_id AND user_id = :user_id
+                    """
+                ), [{"transaction_id": transaction_id, "user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Transaction not found")
+
             purchase_id = connection.execute(
                 sqlalchemy.text(
                     """
@@ -110,6 +120,16 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
 
     try:
         with db.engine.begin() as connection:
+            # check if transaction belongs to user
+            result = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id FROM transactions WHERE id = :transaction_id AND user_id = :user_id
+                    """
+                ), [{"transaction_id": transaction_id, "user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Transaction not found")
+
             connection.execute(
                 sqlalchemy.text(
                     """
