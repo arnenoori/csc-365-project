@@ -124,49 +124,54 @@ Implement the endpoints from the ExampleFlows.md file: dashboard, recommendation
 Checking for Duplicate Emails in User Creation and Update:
 
 ✅ Both in the creation (create_user) and updating (update_user) of user accounts, there's a repeated suggestion to check if the email provided is already in use. This is to prevent multiple accounts with the same email, which could lead to issues with authentication and account management.
+
 Data Privacy and Access Control:
 
 ✅ Several functions (get_transaction, update_transaction, delete_transaction, get_purchases, and all purchases endpoints) lack proper checks to ensure that the requesting user is entitled to access or modify the specified data. This is a significant issue as it allows any user to access or alter another user's transaction and purchase data, which is a breach of privacy and security.
+
 Directly Returning Query Results:
 
 In functions like get_user, there's a concern about directly returning the query results (CursorResult) without explicitly defining what is being returned. This could become problematic, especially if the query or function logic becomes more complex, leading to potential confusion or errors in data handling.
+
 Non-existent Transaction/Purchase Handling:
 
-For get_transaction and get_purchases, there's repeated advice about handling cases where a transaction or purchase does not exist. Currently, these functions may return an error or an empty list, which might not be the most informative or user-friendly response.
+✅ For get_transaction and get_purchases, there's repeated advice about handling cases where a transaction or purchase does not exist. Currently, these functions may return an error or an empty list, which might not be the most informative or user-friendly response.
+
 Utilization of User IDs in Queries:
 
-In several places (transactions.py and purchases.py), it's noted that while user_id is accepted as a parameter, it is not always used in the actual query. This is a repeated observation that indicates a lack of consistency and potential security oversight in the code.
+✅ In several places (transactions.py and purchases.py), it's noted that while user_id is accepted as a parameter, it is not always used in the actual query. This is a repeated observation that indicates a lack of consistency and potential security oversight in the code.
+
 Merging Similar Functions:
 
-Suggestions are made to merge similar functions like get_transaction and get_transactions, where the former could be a specific case of the latter with an optional transaction ID parameter. This would enhance code efficiency and readability.
+✅ Suggestions are made to merge similar functions like get_transaction and get_transactions, where the former could be a specific case of the latter with an optional transaction ID parameter. This would enhance code efficiency and readability.
 Error Handling and Exception Management:
 
 There are multiple instances where more robust error handling and exception management are recommended, especially in scenarios where the data may not exist or the user input could lead to errors.
 
 #### Schema Design Comments:
 
-Most endpoints share a path with another operation
+❌ Most endpoints share a path with another operation
 I am not 100% sure if this is a problem but almost all of your endpoints share a path with another one (i.e. you use /user/{user_id} for all of: making, changing, and deleting a user). This is fine if you are calling the site from the docs and maybe an application program but I am just imagining what would happen if you were to put these paths directly into the browser. For example, neither getting or deleting a user require a json input, so if I just put /user/{user_id} into my browser is it going to create a user or delete one? I would suggest changing your paths to make them all unique in some way.
 
-Consider making email part of primary key or at least constraining it to be unique
+❌ Consider making email part of primary key or ✅ at least constraining it to be unique
 If you go on to use email and password in any form of authentication you will probably want email to be unique such that when you are validating passwords you don't end up checking against another user's password.
 
-Users can change their email?
+❌ Users can change their email?
 I understand why you made it possible for users to change their name but if email is used as a way to uniquely identify the user as their username (as suggested above) you might not want them changing their email all the time. I would suggest adding an unchangeable username attribute for users if you want users to be able to change their email. That way you can have people put in a username and password instead of an email when authenticating.
 
 User password?
 Your table schema has no place for passwords or anything related to them. Your README suggests that the service will have logins and a dashboard for users but your schema and account creation endpoint don't seem to account for passwords
 
-/user/{user_id}/transactions/ Also output transaction_id
+✅ /user/{user_id}/transactions/ Also output transaction_id
 I am imagining this endpoint would be used by users to see all the transaction they have in the system if they have forgotten them. It could be very useful but what if they want to edit or remove a transaction that they see on the list? Unless they happen to have their own personal list of transactions with their associated transaction_ids, they will have no way of knowing what the transaction_ids for all those transactions are and would have no way of changing them. You should list the transaction_id along with the merchant, description, and created_at.
 
-/user/{user_id}/purchases/ Also output purchase_id
+✅ /user/{user_id}/purchases/ Also output purchase_id
 For a similar reason as above, you probably want to be returning the information necessary to actually work with those purchases that someone asks for. You should list the purchase_id alongside the other details of the purchase.
 
-/user/{user_id}/transactions/ Probably don't need created_at to be listed
+✅ /user/{user_id}/transactions/ Probably don't need created_at to be listed
 I am assuming that in many use cases for this service, the created_at field of the transactions is not going to match the actual time the transaction occurred in real life so the created_at field may be unnecessary when listing a user's transactions.
 
-Purchases have warranty and return dates, but not a purchase date?
+❌ Purchases have warranty and return dates, but not a purchase date?
 I might suggest adding a purchase date to either the transactions or purchases table so that users have a way to track their purchases over time.
 
 How are Receipts used by a user
