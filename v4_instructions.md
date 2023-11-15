@@ -9,22 +9,22 @@ You must address all peer review feedback or state why you think the peer review
 
 #### Code Reviews:
 
-Return statement outside try block
+❌ Return statement outside try block
 This may be personal preference (in fact maybe this is an incorrect suggestion) but I find it more readable when the main return statement for a function is in the try block with the rest of the code instead of after the except DBAPIError. Like when you do something like return {"user_id": user_id} I like to see that return statement happen right after all the logic that you used to get that user id. It makes more sense to me because if you receive an exception in your code you will never get to a return statement after the exception handler anyway so why would you feel the need to put it outside the try block.
 
 ✅ create_user - Code for creating user
 Your code for creating a new user does not first check if the given email is already used for an existing user in the database. If you are using email as a username for each user you probably don't want different people creating user accounts under the same email. I get that each user will user their unique id to identify themselves but having duplicate emails in the users table could potentially mess with password authentication or bleed into other areas of your code.
 
-get_user - Directly returning query result ans (also applies to other functions in code)
+✅ get_user - Directly returning query result ans (also applies to other functions in code)
 This may be another personal preference thing but I'm not sure it's a good idea to directly return whatever CursorResult you get from your SQL query. I know that the query will never return more than one row because you are using the id and the columns you want are specified in the query as well. However, I feel like it is still important to be explicit about what exactly you are returning instead of just returning everything from the query. It is easy enough (with this small function) to see what is returned by looking at the query, but If your code logic in this function or the query itself were more complex (or gets changed) it would be a different story. You even have a comment right above return ans presumably to remind you exactly what is getting returned. At that point you might as well just explicitly write out what you want to return.
 
 ✅ update_user - Checking for duplicate emails
 For the same reason as listed above it may be a good idea to check if the new email provided is already in use. If you were to only check this upon account creation and then allow people to use whatever email they want later it would defeat the purpose.
 
-Using transaction as tag for router
+✅ Using transaction as tag for router
 This is definitely a preference thing but you use @router.get("/", tags=["transaction"]) and similar for your transactions endpoints. Firstly I don't think you actually need the tags=["transaction"] every time like that but that is totally fine and not what I am worried about. What it noticed is that the tag transaction doesn't match the endpoint path /transactions. I just think it's nice when everything matches up. Right now in the docs for example, you see the tag transaction but then all the endpoint paths are using transactions plural.
 
-get_transaction- Why use .all()[0]?
+✅ get_transaction- Why use .all()[0]?
 I'm curious why you used .all()[0] I feel think there are other functions that only return 1 row by default. Like .first() for example
 
 ✅ get_transaction - What happens when requesting a transaction that doesn't exist
@@ -39,13 +39,13 @@ Same as above, you probably don't want just any user changing all of Alice's tra
 ✅ delete_transaction - Any user can delete any and all transactions (applies to purchases as well)
 Same as above, you probably want to make sure that only the owner of the transaction can delete it. Additionally, especially when it comes to deleting information, you may want to require more authentication than just the user_id.
 
- get_purchases Desired behavior for non-existent purchase
+✅ get_purchases Desired behavior for non-existent purchase
 If a purchase with the given transaction id does not exist you return an empty list. Is this the desired result? Should you print a message detailing that the given transaction does not (yet) have any purchases associated with it?
 
-All Purchases endpoints should validate if transactions or purchases belong to the given user
+✅ All Purchases endpoints should validate if transactions or purchases belong to the given user
 In addition to making sure that a given transaction belongs to the given user, it is probably important to make sure that users are only accessing purchases that are connected to a transaction that they own.
 
-get_purchase Requesting a purchase that doesn't exist
+✅ get_purchase Requesting a purchase that doesn't exist
 Aside from the fact that user_id and transaction_id aren't used and could literally be anything in this function. If a user inputs a purchase_id that does not exist it gives an internal server error.
 
 
@@ -56,16 +56,16 @@ The current way of creating a new user is missing a check for seeing whether the
 ✅ get_transactions: data privacy issue
 The methods for getting transactions don't safeguard data privacy/security, since any user can retrieve another user's transaction data with no problem. I would consider implementing a check to see if the user)id passed in is actually the user's id so that they can only view their data (least privilege).
 
-All methods (queries): separate query text
+❌ All methods (queries): separate query text
 For all SQL queries, I would consider separating query text from inside the sqlalchemy.text() to promote readability. I would consider creating variable values to store the text then using those variable values inside the queries.
 
- get_transactions: no check to see if transaction exists in DB
+❌ get_transactions: no check to see if transaction exists in DB
 I would raise an exception in the case that ans returns empty (there is no transactions for a user). Right now there is no handling for that case.
 
 create_transactions: in-depth exception handling
 With so many variables at play with the queries, it would make sense to handle exceptions individually. For example, merchant, description, and user_id all come in from user input and are thus vulnerable to user error. It would make sense to handle each error case and throw an exception for each.
 
-get_transaction(s) refactoring into one method
+✅ get_transaction(s) refactoring into one method
 It may make sense to merge get_transaction and get_transactions into one instead of using 2 different endpoints. The 2 can be merged into one get_transactions with an optional transaction_id parameter that would output a specific transaction if provided for the given user. If not, it would output all transactions for a given user. This could benefit readability and simplify things.
 
 ✅ get_transactions: implement pagination
@@ -74,16 +74,16 @@ You could implement pagination when displaying the transactions for a user so th
 update_transaction: implement idempotency
 In case of network failure, you want to make sure you don't have any duplicate processes updating values in tables. To prevent this, you can record an id value during each call and only execute the call if this id value hasn't been seen before.
 
-get_purchases: data accessibility issue
+✅ get_purchases: data accessibility issue
 I would ensure that only users with the given user id can retrieve/modify their respective purchases. In this context, I don't think it makes sense for users to be able to access other user data.
 
 delete_user: who should have authority?
 I think there should be a restriction placed on who should be able to delete users. Right now, any regular user can delete any other user they want, which likely shouldn't be the case.
 
-Purchases: user_id has no use
+✅ Purchases: user_id has no use
 Despite being taken in as a parameter, none of the methods actually use the user_id value in any of the queries. I would likely utilize user_id as another aspect of the queries to ensure users are retrieving/manipulating their own purchase values.
 
-Purchases: price data type
+❌ Purchases: price data type
 I would change the way price is currently stored to only handle dollar and cents decimal placing. Right now, you're able to set a price value to 2.89999 for example.
 
 ✅ Purchases: date types
@@ -93,21 +93,21 @@ For the date values (warranty_date, return_date), there should be an additional 
 
 Implement the endpoints from the ExampleFlows.md file: dashboard, recommendations, export, authenticate, goal
 
-Transactions.py: get_transaction takes in a user_id, but does not use it in the query. If it is not necessary, I would remove that parameter. Otherwise, it would be a good thing to implement into the query as you want to make sure it is specific to a certain user.
+✅ Transactions.py: get_transaction takes in a user_id, but does not use it in the query. If it is not necessary, I would remove that parameter. Otherwise, it would be a good thing to implement into the query as you want to make sure it is specific to a certain user.
 
-Transactions.py: get_transaction and get_transactions seem to do the same thing. I would try to make a transaction_id an optional parameter if the user wants a specific transaction, otherwise return all.
+✅ Transactions.py: get_transaction and get_transactions seem to do the same thing. I would try to make a transaction_id an optional parameter if the user wants a specific transaction, otherwise return all.
 
-Transactions.py: update_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
+✅ Transactions.py: update_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
 
-Transactions.py: delete_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
+✅ Transactions.py: delete_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
 
-Transactions.py: update_transaction returns the merchant and description even when the user or transaction ids do not exist. I think it would be better for a message to indicate whether the ids exist and if the task was possible.
+✅ Transactions.py: update_transaction returns the merchant and description even when the user or transaction ids do not exist. I think it would be better for a message to indicate whether the ids exist and if the task was possible.
 
-Transactions.py: It might be a good idea here to check if a user exists for the case of getting transactions. It does return an empty array with an user_id that doesn’t exist, but it kind of indicates that the user does exist when it returns something expected. Maybe here you can return an error message that indicates the user does not exist.
+✅ Transactions.py: It might be a good idea here to check if a user exists for the case of getting transactions. It does return an empty array with an user_id that doesn’t exist, but it kind of indicates that the user does exist when it returns something expected. Maybe here you can return an error message that indicates the user does not exist.
 
-Users.py: Including a password field would be beneficial. Especially with the auth/signin endpoint from the example flows, if implemented.
+❌ Users.py: Including a password field would be beneficial. Especially with the auth/signin endpoint from the example flows, if implemented.
 
-Users.py: get_user has an issue with handling a user that does not exist. Instead of the exception error being raised, a 500 error is seen in the render docs. Make sure the correct error is being raised (404 status code in the get_user endpoint)
+✅ Users.py: get_user has an issue with handling a user that does not exist. Instead of the exception error being raised, a 500 error is seen in the render docs. Make sure the correct error is being raised (404 status code in the get_user endpoint)
 
 Users.py: update_user returns something unexpected when an update should fail due to the user corresponding with a certain user_id not there. It should return a message like: user_id not found, or something like this instead of the name and email to be changed when a user doesn’t exist.
 
