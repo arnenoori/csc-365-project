@@ -109,13 +109,13 @@ Implement the endpoints from the ExampleFlows.md file: dashboard, recommendation
 
 ✅ Users.py: get_user has an issue with handling a user that does not exist. Instead of the exception error being raised, a 500 error is seen in the render docs. Make sure the correct error is being raised (404 status code in the get_user endpoint)
 
-Users.py: update_user returns something unexpected when an update should fail due to the user corresponding with a certain user_id not there. It should return a message like: user_id not found, or something like this instead of the name and email to be changed when a user doesn’t exist.
+✅ Users.py: update_user returns something unexpected when an update should fail due to the user corresponding with a certain user_id not there. It should return a message like: user_id not found, or something like this instead of the name and email to be changed when a user doesn’t exist.
 
-Users.py: many of the endpoints should check if a user exists or not. When testing with user_id that does not exist, the behavior of the endpoints makes it seem like the actions are valid. I think it would be good to have a message indicating the user doesn’t exist
+✅ Users.py: many of the endpoints should check if a user exists or not. When testing with user_id that does not exist, the behavior of the endpoints makes it seem like the actions are valid. I think it would be good to have a message indicating the user doesn’t exist
 
-Purchases.py: all endpoints take in a user_id, but do not use in the query. The only place I see it being used is for a print statement. I think it would be beneficial to take in the user_id and use it just to ensure that the correct information is returned specific to a user.
+✅ Purchases.py: all endpoints take in a user_id, but do not use in the query. The only place I see it being used is for a print statement. I think it would be beneficial to take in the user_id and use it just to ensure that the correct information is returned specific to a user.
 
-Purchases.py: the get endpoints have the same functionality, so I think it would be nice to compress the two. Maybe have the transaction_id as an optional field, like the get endpoints in transactions.py.
+✅ Purchases.py: the get endpoints have the same functionality, so I think it would be nice to compress the two. Maybe have the transaction_id as an optional field, like the get endpoints in transactions.py.
 
 ✅ Purchases.py: for the price input, I see that it is a float. It could be a good option for the endpoint to handle cases where a user just puts the dollar amount like 500 instead of 500.00. Probably unnecessary, but could be a nice thing to have with users being lazy.
 
@@ -123,10 +123,10 @@ Purchases.py: the get endpoints have the same functionality, so I think it would
 
 Checking for Duplicate Emails in User Creation and Update:
 
-Both in the creation (create_user) and updating (update_user) of user accounts, there's a repeated suggestion to check if the email provided is already in use. This is to prevent multiple accounts with the same email, which could lead to issues with authentication and account management.
+✅ Both in the creation (create_user) and updating (update_user) of user accounts, there's a repeated suggestion to check if the email provided is already in use. This is to prevent multiple accounts with the same email, which could lead to issues with authentication and account management.
 Data Privacy and Access Control:
 
-Several functions (get_transaction, update_transaction, delete_transaction, get_purchases, and all purchases endpoints) lack proper checks to ensure that the requesting user is entitled to access or modify the specified data. This is a significant issue as it allows any user to access or alter another user's transaction and purchase data, which is a breach of privacy and security.
+✅ Several functions (get_transaction, update_transaction, delete_transaction, get_purchases, and all purchases endpoints) lack proper checks to ensure that the requesting user is entitled to access or modify the specified data. This is a significant issue as it allows any user to access or alter another user's transaction and purchase data, which is a breach of privacy and security.
 Directly Returning Query Results:
 
 In functions like get_user, there's a concern about directly returning the query results (CursorResult) without explicitly defining what is being returned. This could become problematic, especially if the query or function logic becomes more complex, leading to potential confusion or errors in data handling.
