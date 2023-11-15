@@ -26,7 +26,7 @@ check_purchase_query = "SELECT transaction_id FROM purchases WHERE id = :purchas
 
 # gets purchases for a user (all or specific purchase)
 @router.get("/", tags=["purchase"])
-def get_purchases_by_transaction(user_id: int, transaction_id: int, purchase_id: int = -1):
+def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1):
     """ """
     ans = []
 
@@ -52,7 +52,7 @@ def get_purchases_by_transaction(user_id: int, transaction_id: int, purchase_id:
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT item, price, category, warranty_date, return_date
+                        SELECT id, item, price, category, warranty_date, return_date
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id
@@ -62,7 +62,7 @@ def get_purchases_by_transaction(user_id: int, transaction_id: int, purchase_id:
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT item, price, category, warranty_date, return_date
+                        SELECT id, item, price, category, warranty_date, return_date
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id

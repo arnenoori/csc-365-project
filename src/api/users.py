@@ -15,6 +15,8 @@ class NewUser(BaseModel):
     name: str
     email: str
 
+check_user_query = "SELECT id FROM users WHERE id = :user_id"
+
 # creates a new user
 @router.post("/", tags=["user"])
 def create_user(new_user: NewUser):
@@ -85,6 +87,14 @@ def delete_user(user_id: int):
     """ """
     try:
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # delete user
             connection.execute(
                 sqlalchemy.text(
                     """
@@ -105,18 +115,25 @@ def update_user(user_id: int, new_user: NewUser):
     email = new_user.email
 
     try:
-        # Check if new email already exists
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # check if new email already exists
             result = connection.execute(
                 sqlalchemy.text(
                     """
                     SELECT id FROM users WHERE email = :email
                     """
                 ), [{"email": email}]).fetchone()
-            
             if result is not None and result['id'] != user_id:
                 raise HTTPException(status_code=409, detail="Email already in use")
-        
+
+            # update user
             connection.execute(
                 sqlalchemy.text(
                     """

@@ -67,7 +67,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT merchant, description, created_at
+                        SELECT id, merchant, description
                         FROM transactions
                         WHERE user_id = :user_id
                         ORDER BY created_at DESC
@@ -78,7 +78,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT merchant, description, created_at
+                        SELECT id, merchant, description
                         FROM transactions
                         WHERE user_id = :user_id AND id = :transaction_id
                         ORDER BY created_at DESC
