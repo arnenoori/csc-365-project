@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions",
-    tags=["transaction"],
+    tags=["transactions"],
     dependencies=[Depends(auth.get_api_key)],
 )
 
@@ -15,40 +15,26 @@ class NewTransaction(BaseModel):
     merchant: str
     description: str
 
-# gets all transactions for a user
-@router.get("/", tags=["transaction"])
-def get_transactions(user_id: int):
-    """ """
-    ans = []
-
-    try: 
-        with db.engine.begin() as connection:
-            # ans stores query result as list of dictionaries/json
-            ans = connection.execute(
-                sqlalchemy.text(
-                    """
-                    SELECT merchant, description, created_at
-                    FROM transactions
-                    where user_id = :user_id
-                    """
-                ), [{"user_id": user_id}]).mappings().all()
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-    print(f"USER_{user_id}_TRANSACTIONS: {ans}")
-
-    # ex: [{"merchant": "Walmart", "description": "got groceries", "created_at": "2021-05-01 12:00:00"}, ...]
-    return ans
+check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
+check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
 # creates a new transaction for a user
-@router.post("/", tags=["transaction"])
+@router.post("/", tags=["transactions"])
 def create_transaction(user_id: int, transaction: NewTransaction):
     """ """
     merchant = transaction.merchant
     description = transaction.description
 
-    try: 
+    try:
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # add transaction to database
             transaction_id = connection.execute(
                 sqlalchemy.text(
                     """
@@ -62,26 +48,43 @@ def create_transaction(user_id: int, transaction: NewTransaction):
 
     return {"transaction_id": transaction_id}
 
-
-
-
-# gets a specific transaction for a user
-@router.get("/", tags=["transaction"])
-def get_transactions(user_id: int, page: int = 1, page_size: int = 10):
+# gets transactions for a user (all or specific transaction)
+@router.get("/", tags=["transactions"])
+def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10):
     """ """
     offset = (page - 1) * page_size
     try: 
         with db.engine.begin() as connection:
-            ans = connection.execute(
-                sqlalchemy.text(
-                    """
-                    SELECT merchant, description, created_at
-                    FROM transactions
-                    WHERE user_id = :user_id
-                    ORDER BY created_at DESC
-                    LIMIT :page_size OFFSET :offset
-                    """
-                ), [{"user_id": user_id, "page_size": page_size, "offset": offset}]).mappings().all()
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # get transactions
+            if transaction_id == -1:
+                ans = connection.execute(
+                    sqlalchemy.text(
+                        """
+                        SELECT merchant, description, created_at
+                        FROM transactions
+                        WHERE user_id = :user_id
+                        ORDER BY created_at DESC
+                        LIMIT :page_size OFFSET :offset
+                        """
+                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset}]).mappings().all()
+            else:
+                ans = connection.execute(
+                    sqlalchemy.text(
+                        """
+                        SELECT merchant, description, created_at
+                        FROM transactions
+                        WHERE user_id = :user_id AND id = :transaction_id
+                        ORDER BY created_at DESC
+                        LIMIT :page_size OFFSET :offset
+                        """
+                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
@@ -90,35 +93,67 @@ def get_transactions(user_id: int, page: int = 1, page_size: int = 10):
     return ans
 
 # deletes a specific transaction for a user
-@router.delete("/{transaction_id}", tags=["transaction"])
+@router.delete("/{transaction_id}", tags=["transactions"])
 def delete_transaction(user_id: int, transaction_id: int):
     """ """
     try:
         with db.engine.begin() as connection:
+            # check if user exists
             result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # check if transaction exists and belongs to user
+            result = connection.execute(
+                sqlalchemy.text(check_transaction_query),
+                [{"transaction_id": transaction_id, "user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Transaction not found")
+            if result.user_id != user_id:
+                raise HTTPException(status_code=400, detail="Transaction does not belong to user")
+            
+            # delete transaction
+            connection.execute(
                 sqlalchemy.text(
                     """
                     DELETE FROM transactions
                     WHERE id = :transaction_id AND user_id = :user_id
                     """
                 ), [{"transaction_id": transaction_id, "user_id": user_id}])
-            if result.rowcount == 0:
-                raise HTTPException(status_code=404, detail="Transaction not found or not owned by user")
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
     return "OK"
 
 # updates a specific transaction for a user
-@router.put("/{transaction_id}", tags=["transaction"])
+@router.put("/{transaction_id}", tags=["transactions"])
 def update_transaction(user_id: int, transaction_id: int, transaction: NewTransaction):
     """ """
     merchant = transaction.merchant
     description = transaction.description
 
-    try: 
+    try:
         with db.engine.begin() as connection:
+            # check if user exists
             result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # check if transaction exists and belongs to user
+            result = connection.execute(
+                sqlalchemy.text(check_transaction_query),
+                [{"transaction_id": transaction_id, "user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Transaction not found")
+            if result.user_id != user_id:
+                raise HTTPException(status_code=400, detail="Transaction does not belong to user")
+            
+            # update transaction
+            connection.execute(
                 sqlalchemy.text(
                     """
                     UPDATE transactions
@@ -126,8 +161,6 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
                     WHERE id = :transaction_id AND user_id = :user_id
                     """
                 ), [{"transaction_id": transaction_id, "user_id": user_id, "merchant": merchant, "description": description}])
-            if result.rowcount == 0:
-                raise HTTPException(status_code=404, detail="Transaction not found or not owned by user")
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
