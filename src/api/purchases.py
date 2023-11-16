@@ -66,14 +66,14 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                 # get all purchases for transaction
                 ans = connection.execute(
                     sqlalchemy.text(
-                        """
+                        f"""
                         SELECT id, item, price, category, warranty_date, return_date, quantity
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id
                         ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "user_id": user_id}]).mappings().all()
             else:
                 # check if purchase exists and belongs to transaction
                 result = connection.execute(
@@ -90,14 +90,14 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                 # get specific purchase
                 ans = connection.execute(
                     sqlalchemy.text(
-                        """
+                        f"""
                         SELECT id, item, price, category, warranty_date, return_date, quantity
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
                         ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "user_id": user_id}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 

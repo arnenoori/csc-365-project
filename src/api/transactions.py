@@ -88,7 +88,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 # get all transactions for user
                 ans = connection.execute(
                     sqlalchemy.text(
-                        """
+                        f"""
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id
@@ -109,7 +109,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 # get specific transaction
                 ans = connection.execute(
                     sqlalchemy.text(
-                        """
+                        f"""
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id AND id = :transaction_id
