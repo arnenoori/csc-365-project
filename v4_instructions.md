@@ -265,9 +265,9 @@ You could create a more versatile way for a user to look through their purchases
 
 ✅ If there are multiple transactions from the same merchant this would let users see what and how much they buy from certain stores. If you also add a way for people to sort based on different attributes like the purchase date, item name, price, etc. It could help users further evaluate their own spending habits.
 
-Searching for particular items purchased could let users evaluate how often they buy a particular item for example.
+✅ Searching for particular items purchased could let users evaluate how often they buy a particular item for example.
 
-If a user really wanted to narrow things down they could search for a particular item purchased from a particular merchant and sort it based on purchase date, that way they could see if that merchant has increased the price for that item over time and maybe choose a different merchant based on this info.
+✅ If a user really wanted to narrow things down they could search for a particular item purchased from a particular merchant and sort it based on purchase date, that way they could see if that merchant has increased the price for that item over time and maybe choose a different merchant based on this info.
 
 Financial Goal endpoint
 I wasn't totally sure how you had planned to implement financial goals and budget planning into your application but I thought it might be a good idea to just use a single endpoint. With this endpoint a user could input various information about themselves and what they want and the endpoint would use the information in the database about that user to give them a goal.
