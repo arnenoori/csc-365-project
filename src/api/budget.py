@@ -83,3 +83,31 @@ def create_budget(user_id: int, budget: NewBudget):
 
     return {"budget_id": budget_id}
 
+# gets a user's budgets
+@router.get("/", tags=["budgets"])
+def get_budgets(user_id: int):
+    """ """
+    try:
+        with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # gets budgets from database
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT groceries, clothing_and_accessories, electronics, home_and_garden, health_and_beauty, entertainment, travel, automotive, services, gifts_and_special_occasions, education, fitness_and_sports, pets, office_supplies, financial_services, other
+                    FROM budgets
+                    WHERE user_id = :user_id
+                    """
+                ), [{"user_id": user_id}]).fetchone()
+            if ans is None:
+                raise HTTPException(status_code=404, detail="Budget not found")
+    except DBAPIError as error:
+        print(f"DBAPIError returned: <<<{error}>>>")
+
+    return dict(ans)
