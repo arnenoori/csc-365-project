@@ -62,7 +62,7 @@ For all SQL queries, I would consider separating query text from inside the sqla
 ❌ get_transactions: no check to see if transaction exists in DB
 I would raise an exception in the case that ans returns empty (there is no transactions for a user). Right now there is no handling for that case.
 
-create_transactions: in-depth exception handling
+✅ create_transactions: in-depth exception handling
 With so many variables at play with the queries, it would make sense to handle exceptions individually. For example, merchant, description, and user_id all come in from user input and are thus vulnerable to user error. It would make sense to handle each error case and throw an exception for each.
 
 ✅ get_transaction(s) refactoring into one method
