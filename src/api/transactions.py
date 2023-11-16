@@ -201,4 +201,4 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
-    return {"transaction_id": transaction_id, "merchant": merchant, "description": description}
+    return {"transaction_id": transaction_id, "merchant": merchant, "description": description, "date": date}

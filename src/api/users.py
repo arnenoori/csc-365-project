@@ -155,7 +155,7 @@ def update_user(user_id: int, new_user: NewUser):
                     SELECT id FROM users WHERE email = :email
                     """
                 ), [{"email": email}]).fetchone()
-            if result is not None and result['id'] != user_id:
+            if result is not None and result.id != user_id:
                 raise HTTPException(status_code=409, detail="Email already in use")
 
             # update user
