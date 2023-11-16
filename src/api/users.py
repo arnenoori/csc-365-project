@@ -20,6 +20,10 @@ def is_valid_email(email):
     email_regex = r'^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'
     return bool(re.match(email_regex, email))
 
+def is_valid_name(name):
+    name_regex = r'^[A-Za-z\'\-_]+$'
+    return bool(re.match(name_regex, name))
+
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
 # creates a new user
@@ -29,6 +33,10 @@ def create_user(new_user: NewUser):
     name = new_user.name
     email = new_user.email
     user_id = None
+
+    # check if name is valid
+    if not is_valid_name(name):
+        raise HTTPException(status_code=400, detail="Invalid name")
 
     # check if email is valid
     if not is_valid_email(email):
@@ -122,6 +130,10 @@ def update_user(user_id: int, new_user: NewUser):
     """ """
     name = new_user.name
     email = new_user.email
+
+    # check if name is valid
+    if not is_valid_name(name):
+        raise HTTPException(status_code=400, detail="Invalid name")
 
     # check if email is valid
     if not is_valid_email(email):

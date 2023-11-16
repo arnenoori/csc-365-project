@@ -1,4 +1,4 @@
-# csc-365-project
+# Receipts Tracker+
 
 **Contributors:** \
 Connor O’Brien - cpobrian@calpoly.edu \

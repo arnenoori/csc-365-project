@@ -4,6 +4,7 @@ from src.api import auth
 import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
+from datetime import datetime
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions",
@@ -16,6 +17,13 @@ class NewTransaction(BaseModel):
     description: str
     date: str
 
+def is_valid_date(date_string, format='%Y-%m-%d'):
+    try:
+        datetime.strptime(date_string, format)
+        return True
+    except ValueError:
+        return False
+
 check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
@@ -26,6 +34,10 @@ def create_transaction(user_id: int, transaction: NewTransaction):
     merchant = transaction.merchant
     description = transaction.description
     date = transaction.date
+
+    # check if date is valid
+    if not is_valid_date(date):
+        raise HTTPException(status_code=400, detail="Invalid date")
 
     try:
         with db.engine.begin() as connection:
@@ -136,6 +148,10 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
     merchant = transaction.merchant
     description = transaction.description
     date = transaction.date
+
+    # check if date is valid
+    if not is_valid_date(date):
+        raise HTTPException(status_code=400, detail="Invalid date")
 
     try:
         with db.engine.begin() as connection:
