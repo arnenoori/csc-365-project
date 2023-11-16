@@ -260,8 +260,8 @@ Implementation of Specified Flows and Functionalities: There are multiple mentio
 
 #### Product Ideas:
 
-Search/Sorting endpoint
-✅ You could create a more versatile way for a user to look through their purchases with a searching endpoint similar to the one from the potion shops. Users could search for purchases that fall under a transaction from a particular merchant or search for purchases of a particular item or both.
+✅ Search/Sorting endpoint
+You could create a more versatile way for a user to look through their purchases with a searching endpoint similar to the one from the potion shops. Users could search for purchases that fall under a transaction from a particular merchant or search for purchases of a particular item or both.
 
 ✅ If there are multiple transactions from the same merchant this would let users see what and how much they buy from certain stores. If you also add a way for people to sort based on different attributes like the purchase date, item name, price, etc. It could help users further evaluate their own spending habits.
 
