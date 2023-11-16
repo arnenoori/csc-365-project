@@ -65,7 +65,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
 
 # gets transactions for a user (all or specific transaction)
 @router.get("/", tags=["transactions"])
-def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc"):
+def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc", date_from: str = "1000-01-01", date_to: str = "9999-12-31", merchant: str = "%"):
     """ """
     # check if sort_by and sort_order is valid
     if sort_by not in ["date", "merchant"]:
@@ -74,6 +74,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
         raise HTTPException(status_code=400, detail="Invalid sort_order")
     
     offset = (page - 1) * page_size
+    if merchant != "%": merchant = f"%{merchant}%"
 
     try: 
         with db.engine.begin() as connection:
@@ -91,11 +92,11 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         f"""
                         SELECT id, merchant, description, date
                         FROM transactions
-                        WHERE user_id = :user_id
+                        WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to) AND merchant LIKE :merchant
                         ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset}]).mappings().all()
+                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset, "date_from": date_from, "date_to": date_to, "merchant": merchant}]).mappings().all()
             else:
                 # check if transaction exists and belongs to user
                 result = connection.execute(
@@ -112,11 +113,11 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         f"""
                         SELECT id, merchant, description, date
                         FROM transactions
-                        WHERE user_id = :user_id AND id = :transaction_id
+                        WHERE user_id = :user_id AND id = :transaction_id AND (date BETWEEN :date_from AND :date_to) AND merchant LIKE :merchant
                         ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset}]).mappings().all()
+                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset, "date_from": date_from, "date_to": date_to, "merchant": merchant}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
