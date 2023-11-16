@@ -71,9 +71,9 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id
-                        ORDER BY :sort_by :sort_order
+                        ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
+                    ), [{"transaction_id": transaction_id}]).mappings().all()
             else:
                 # check if purchase exists and belongs to transaction
                 result = connection.execute(
@@ -95,9 +95,9 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
-                        ORDER BY :sort_by :sort_order
+                        ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
@@ -157,7 +157,7 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
                 sqlalchemy.text(
                     """
                     INSERT INTO purchases (transaction_id, item, price, quantity, warranty_date, return_date, category)
-                    VALUES (:transaction_id, :item, :price, :quantity, :warranty_date, :return_date)
+                    VALUES (:transaction_id, :item, :price, :quantity, :warranty_date, :return_date, :category)
                     RETURNING id
                     """
                 ), [{"transaction_id": transaction_id, "item": item, "price": price, "quantity": quantity, "warranty_date": warranty_date, "return_date": return_date, "category": category}]).scalar_one()

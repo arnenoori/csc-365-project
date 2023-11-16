@@ -34,6 +34,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
     merchant = transaction.merchant
     description = transaction.description
     date = transaction.date
+    transaction_id = None
 
     # check if date is valid
     if not is_valid_date(date):
@@ -53,7 +54,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
                 sqlalchemy.text(
                     """
                     INSERT INTO transactions (user_id, merchant, description, date)
-                    VALUES (:user_id, :merchant, :description)
+                    VALUES (:user_id, :merchant, :description, :date)
                     RETURNING id
                     """
                 ), [{"user_id": user_id, "merchant": merchant, "description": description, "date": date}]).scalar_one()
@@ -91,10 +92,10 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id
-                        ORDER BY :sort_by :sort_order
+                        ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
+                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset}]).mappings().all()
             else:
                 # check if transaction exists and belongs to user
                 result = connection.execute(
@@ -112,10 +113,10 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id AND id = :transaction_id
-                        ORDER BY :sort_by :sort_order
+                        ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
+                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
