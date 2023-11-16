@@ -83,7 +83,7 @@ def create_budget(user_id: int, budget: NewBudget):
 
     return {"budget_id": budget_id}
 
-# gets a user's budgets
+# gets a user's monthly budgets
 @router.get("/", tags=["budgets"])
 def get_budgets(user_id: int):
     """ """
@@ -111,3 +111,55 @@ def get_budgets(user_id: int):
         print(f"DBAPIError returned: <<<{error}>>>")
 
     return dict(ans)
+
+# compare actual monthly spending to budget
+@router.get("/compare", tags=["budgets"])
+def compare_budgets_to_actual_spending(user_id: int):
+    """ """
+    try:
+        with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # gets budgets from database
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT groceries, clothing_and_accessories, electronics, home_and_garden, health_and_beauty, entertainment, travel, automotive, services, gifts_and_special_occasions, education, fitness_and_sports, pets, office_supplies, financial_services, other
+                    FROM budgets
+                    WHERE user_id = :user_id
+                    """
+                ), [{"user_id": user_id}]).fetchone()
+            if ans is None:
+                raise HTTPException(status_code=404, detail="Budget not found")
+
+            # gets actual spending from database
+            actual_spending = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT SUM(price) AS total
+                    FROM purchases
+                    JOIN transactions on purchases.transaction_id = transactions.id
+                    WHERE user_id = :user_id
+                    GROUP BY category
+                    """
+                ), [{"user_id": user_id}]).all()
+    except DBAPIError as error:
+        print(f"DBAPIError returned: <<<{error}>>>")
+
+    # convert actual spending to dictionary
+    actual_spending_dict = {}
+    for row in actual_spending:
+        actual_spending_dict[row[0]] = row[1]
+
+    # compare actual spending to budget
+    comparisons = {}
+    for category in ans.keys():
+        if ans[category] is not None:
+            comparisons[category] = (actual_spending_dict[category], ans[category])
+    
+    return comparisons
