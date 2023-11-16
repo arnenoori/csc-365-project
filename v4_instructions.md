@@ -187,7 +187,7 @@ ER diagram mismatch
 Your ER diagram does not accurately depict the entities you have within your application. Purchases should probably be connected to a transaction entity which connects to users in order to accurately depict the way your tables are connected to each other.
 
 
-The purchase endpoint has fields to reflect warranty and return date. Sometimes these fields don’t apply to all purchases like food items. I see they are optional, but might be a nice touch to differentiate the categories.
+❌ The purchase endpoint has fields to reflect warranty and return date. Sometimes these fields don’t apply to all purchases like food items. I see they are optional, but might be a nice touch to differentiate the categories.
 
 Example flows/API Specs out of date: reflect flows from V2 into ExampleFlows.md as they are not listed.
 
@@ -199,21 +199,21 @@ Receipts Table: has a field for an image, but the value is text. Update to the r
 
 Receipts Table: both fields (transaction_id and image) should be required fields, if implemented.
 
-Purchases Table: Category attribute seems like something that should be a required field. It can be beneficial for the example flows listed in ExampleFlows.md (Financial advice, recommendations)
+❌ Purchases Table: Category attribute seems like something that should be a required field. It can be beneficial for the example flows listed in ExampleFlows.md (Financial advice, recommendations)
 
-Purchases Table: Price could have an option of being an int and the endpoint handles the case of adding the decimal places. People could be lazy and not enter the .00 part, but this isn’t super necessary.
+❌ Purchases Table: Price could have an option of being an int and the endpoint handles the case of adding the decimal places. People could be lazy and not enter the .00 part, but this isn’t super necessary.
 
-Transactions Table: Merchant seems like it should be a required attribute. Description can be required, but maybe depends on whether that information will be used in another endpoint like recommendations (if implemented)
+✅ Transactions Table: Merchant seems like it should be a required attribute. Description can be required, but maybe depends on whether that information will be used in another endpoint like recommendations (if implemented)
 
-I think it would be beneficial to have restrictions on the categories that a user can enter for future additions to the project (recommendations, etc). It can help strictly categorize and force the user to choose a certain category for their purchase. The transaction description however can remain up to the user.
+✅ I think it would be beneficial to have restrictions on the categories that a user can enter for future additions to the project (recommendations, etc). It can help strictly categorize and force the user to choose a certain category for their purchase. The transaction description however can remain up to the user.
 
 A filter option could be a good addition for getting the purchases. Like if a user wants purchases that reflect produce, they can just get those purchases rather than all.
 
-The email should probably constrain the end like @gmail, @yahoo, etc. That way only valid emails are used.
+✅ The email should probably constrain the end like @gmail, @yahoo, etc. That way only valid emails are used.
 
 A required password field would be good in the case of a login being implemented.
 
-The path for many of the endpoints is the same, but they do different things. For example: user/{user_id} is the same path for get, update and delete user. I would have a way to indicate which endpoint is which like user/get/{user_id} or something.
+❌ The path for many of the endpoints is the same, but they do different things. For example: user/{user_id} is the same path for get, update and delete user. I would have a way to indicate which endpoint is which like user/get/{user_id} or something.
 
 Implementing the flows mentioned would be a great idea especially if the application is meant for helping users track their budget and receive suggestions! It would be a great addition to actually process the purchases and provide some sort of feedback rather than just serving as a storage for purchases/transactions.
 
@@ -234,29 +234,29 @@ I think there should be an endpoint to view/update data from scanned receipts in
 
 In the receipts table, transaction_id and image should be required values, since entries are based on scanned receipts and are linked to transactions per the README.
 
-In the purchases table, category should be a required value since you want to do analysis with this attribute moving forward.
+❌ In the purchases table, category should be a required value since you want to do analysis with this attribute moving forward.
 
-The email field in the users table should have an additional restriction to end with an email signature (@...) so that random text values aren't accepted as emails.
+✅ The email field in the users table should have an additional restriction to end with an email signature (@...) so that random text values aren't accepted as emails.
 
-Missing table for storing summary/graphical data (Dashboard) for users and respective endpoints. I would add this table and respective foreign key links to the other tables.
+❌ Missing table for storing summary/graphical data (Dashboard) for users and respective endpoints. I would add this table and respective foreign key links to the other tables.
 
-While testing, I noted that the "get transactions" endpoint returned data that wasn't entirely relevant to the user. Instead of returning the date in which the table entry was created, a value reflecting the date in which the transaction actually occurred should be returned.
+✅ While testing, I noted that the "get transactions" endpoint returned data that wasn't entirely relevant to the user. Instead of returning the date in which the table entry was created, a value reflecting the date in which the transaction actually occurred should be returned.
 
 #### Repeated Feedback:
 
-Uniqueness of Endpoint Paths: Multiple comments highlight the issue of different operations (like create, update, delete) sharing the same endpoint path, which could lead to confusion or unintended actions.
+❌ Uniqueness of Endpoint Paths: Multiple comments highlight the issue of different operations (like create, update, delete) sharing the same endpoint path, which could lead to confusion or unintended actions.
 
-Email Address Concerns: There are several mentions of the need to handle email addresses more effectively. This includes making email part of the primary key or enforcing it as unique, and considerations about whether users should be able to change their email.
+✅ Email Address Concerns: There are several mentions of the need to handle email addresses more effectively. This includes making email part of the primary key or enforcing it as unique, and considerations about whether users should be able to change their email.
 
 Lack of Password Field in User Schema: The absence of a password field or related security features in the user table is noted multiple times, emphasizing the importance of this for user authentication and security.
 
-Need for Explicit Transaction and Purchase IDs in Outputs: The feedback repeatedly suggests that endpoints for transactions and purchases should explicitly output their respective IDs (transaction_id and purchase_id) to enable users to interact more effectively with this data.
+✅ Need for Explicit Transaction and Purchase IDs in Outputs: The feedback repeatedly suggests that endpoints for transactions and purchases should explicitly output their respective IDs (transaction_id and purchase_id) to enable users to interact more effectively with this data.
 
 Receipts Table Utility and Implementation: Several comments question the implementation and practical use of the receipts table, including how users interact with it and the data types used.
 
 Implementation of Specified Flows and Functionalities: There are multiple mentions of the need to implement the functionalities outlined in ExampleFlows.md or the README, like dashboard, recommendations, export, authenticate, and goal, to enhance the application's utility.
 
-Handling of Optional Fields in Purchases: The approach to managing optional fields in purchases, particularly for items where certain details like warranty or return dates may not apply, is brought up more than once.
+❌ Handling of Optional Fields in Purchases: The approach to managing optional fields in purchases, particularly for items where certain details like warranty or return dates may not apply, is brought up more than once.
 
 #### Product Ideas:
 
