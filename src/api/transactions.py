@@ -14,6 +14,7 @@ router = APIRouter(
 class NewTransaction(BaseModel):
     merchant: str
     description: str
+    date: str
 
 check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
@@ -24,6 +25,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
     """ """
     merchant = transaction.merchant
     description = transaction.description
+    date = transaction.date
 
     try:
         with db.engine.begin() as connection:
@@ -38,11 +40,11 @@ def create_transaction(user_id: int, transaction: NewTransaction):
             transaction_id = connection.execute(
                 sqlalchemy.text(
                     """
-                    INSERT INTO transactions (user_id, merchant, description)
+                    INSERT INTO transactions (user_id, merchant, description, date)
                     VALUES (:user_id, :merchant, :description)
                     RETURNING id
                     """
-                ), [{"user_id": user_id, "merchant": merchant, "description": description}]).scalar_one()
+                ), [{"user_id": user_id, "merchant": merchant, "description": description, "date": date}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
@@ -67,7 +69,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT id, merchant, description
+                        SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id
                         ORDER BY created_at DESC
@@ -78,7 +80,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
-                        SELECT id, merchant, description
+                        SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id AND id = :transaction_id
                         ORDER BY created_at DESC
@@ -133,6 +135,7 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
     """ """
     merchant = transaction.merchant
     description = transaction.description
+    date = transaction.date
 
     try:
         with db.engine.begin() as connection:
@@ -157,10 +160,10 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
                 sqlalchemy.text(
                     """
                     UPDATE transactions
-                    SET merchant = :merchant, description = :description
+                    SET merchant = :merchant, description = :description, date = :date
                     WHERE id = :transaction_id AND user_id = :user_id
                     """
-                ), [{"transaction_id": transaction_id, "user_id": user_id, "merchant": merchant, "description": description}])
+                ), [{"transaction_id": transaction_id, "user_id": user_id, "merchant": merchant, "description": description, "date": date}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 

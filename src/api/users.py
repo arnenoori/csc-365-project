@@ -4,6 +4,7 @@ from src.api import auth
 import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError, NoResultFound
+import re
 
 router = APIRouter(
     prefix="/user",
@@ -15,6 +16,10 @@ class NewUser(BaseModel):
     name: str
     email: str
 
+def is_valid_email(email):
+    email_regex = r'^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'
+    return bool(re.match(email_regex, email))
+
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
 # creates a new user
@@ -24,6 +29,10 @@ def create_user(new_user: NewUser):
     name = new_user.name
     email = new_user.email
     user_id = None
+
+    # check if email is valid
+    if not is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Invalid email")
 
     try:
         # Check if email already exists
@@ -113,6 +122,10 @@ def update_user(user_id: int, new_user: NewUser):
     """ """
     name = new_user.name
     email = new_user.email
+
+    # check if email is valid
+    if not is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Invalid email")
 
     try:
         with db.engine.begin() as connection:
