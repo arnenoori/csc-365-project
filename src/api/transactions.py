@@ -98,7 +98,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         f"""
                         SELECT id, merchant, description, date
                         FROM transactions
-                        WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to) AND merchant LIKE :merchant
+                        WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to) AND merchant ILIKE :merchant
                         ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
