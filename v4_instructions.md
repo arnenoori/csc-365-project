@@ -228,7 +228,7 @@ You likely need an additional table to store ChatGPT messages and interactions t
 
 Date values: I think tracking would benefit if a date value was added to the purchase and receipt tables for when each occurred.
 
-A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap.
+❌ A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap.
 
 I think there should be an endpoint to view/update data from scanned receipts in the receipt table. Right now, there is no available access to that information.
 
