@@ -62,7 +62,7 @@ For all SQL queries, I would consider separating query text from inside the sqla
 ❌ get_transactions: no check to see if transaction exists in DB
 I would raise an exception in the case that ans returns empty (there is no transactions for a user). Right now there is no handling for that case.
 
-create_transactions: in-depth exception handling
+✅ create_transactions: in-depth exception handling
 With so many variables at play with the queries, it would make sense to handle exceptions individually. For example, merchant, description, and user_id all come in from user input and are thus vulnerable to user error. It would make sense to handle each error case and throw an exception for each.
 
 ✅ get_transaction(s) refactoring into one method
@@ -228,7 +228,7 @@ You likely need an additional table to store ChatGPT messages and interactions t
 
 Date values: I think tracking would benefit if a date value was added to the purchase and receipt tables for when each occurred.
 
-A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap.
+❌ A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap.
 
 I think there should be an endpoint to view/update data from scanned receipts in the receipt table. Right now, there is no available access to that information.
 
