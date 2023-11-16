@@ -64,9 +64,16 @@ def create_transaction(user_id: int, transaction: NewTransaction):
 
 # gets transactions for a user (all or specific transaction)
 @router.get("/", tags=["transactions"])
-def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10):
+def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc"):
     """ """
+    # check if sort_by and sort_order is valid
+    if sort_by not in ["date", "merchant"]:
+        raise HTTPException(status_code=400, detail="Invalid sort_by")
+    if sort_order not in ["asc", "desc"]:
+        raise HTTPException(status_code=400, detail="Invalid sort_order")
+    
     offset = (page - 1) * page_size
+
     try: 
         with db.engine.begin() as connection:
             # check if user exists
@@ -76,29 +83,39 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
             if result is None:
                 raise HTTPException(status_code=404, detail="User not found")
             
-            # get transactions
             if transaction_id == -1:
+                # get all transactions for user
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id
-                        ORDER BY created_at DESC
+                        ORDER BY :sort_by :sort_order
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset}]).mappings().all()
+                    ), [{"user_id": user_id, "page_size": page_size, "offset": offset, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
             else:
+                # check if transaction exists and belongs to user
+                result = connection.execute(
+                    sqlalchemy.text(check_transaction_query),
+                    [{"transaction_id": transaction_id, "user_id": user_id}]).fetchone()
+                if result is None:
+                    raise HTTPException(status_code=404, detail="Transaction not found")
+                if result.user_id != user_id:
+                    raise HTTPException(status_code=400, detail="Transaction does not belong to user")
+                
+                # get specific transaction
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
                         SELECT id, merchant, description, date
                         FROM transactions
                         WHERE user_id = :user_id AND id = :transaction_id
-                        ORDER BY created_at DESC
+                        ORDER BY :sort_by :sort_order
                         LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset}]).mappings().all()
+                    ), [{"user_id": user_id, "transaction_id": transaction_id, "page_size": page_size, "offset": offset, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 

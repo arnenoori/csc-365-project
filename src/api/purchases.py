@@ -34,9 +34,15 @@ check_purchase_query = "SELECT transaction_id FROM purchases WHERE id = :purchas
 
 # gets purchases for a user (all or specific purchase)
 @router.get("/", tags=["purchase"])
-def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1):
+def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort_by: str = "date", sort_order: str = "asc"):
     """ """
     ans = []
+
+    # check if sort_by and sort_order is valid
+    if sort_by not in ["date", "price", "category", "warranty_date", "return_date", "quantity"]:
+        raise HTTPException(status_code=400, detail="Invalid sort_by")
+    if sort_order not in ["asc", "desc"]:
+        raise HTTPException(status_code=400, detail="Invalid sort_order")
 
     try: 
         with db.engine.begin() as connection:
@@ -57,6 +63,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1):
                 raise HTTPException(status_code=400, detail="Transaction does not belong to user")
 
             if purchase_id == -1:
+                # get all purchases for transaction
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
@@ -64,9 +71,23 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1):
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id
+                        ORDER BY :sort_by :sort_order
                         """
-                    ), [{"transaction_id": transaction_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
             else:
+                # check if purchase exists and belongs to transaction
+                result = connection.execute(
+                    sqlalchemy.text(
+                        """
+                        SELECT transaction_id FROM purchases WHERE id = :purchase_id
+                        """
+                    ), [{"purchase_id": purchase_id}]).fetchone()
+                if result is None:
+                    raise HTTPException(status_code=404, detail="Purchase not found")
+                if result.transaction_id != transaction_id:
+                    raise HTTPException(status_code=400, detail="Purchase does not belong to transaction")
+
+                # get specific purchase
                 ans = connection.execute(
                     sqlalchemy.text(
                         """
@@ -74,8 +95,9 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1):
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
+                        ORDER BY :sort_by :sort_order
                         """
-                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "sort_by": sort_by, "sort_order": sort_order}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
