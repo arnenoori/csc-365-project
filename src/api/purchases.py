@@ -6,6 +6,7 @@ from src import database as db
 from sqlalchemy.exc import DBAPIError, NoResultFound
 from datetime import datetime
 from fastapi import HTTPException
+import sys
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions/{transaction_id}/purchases",
@@ -34,7 +35,7 @@ check_purchase_query = "SELECT transaction_id FROM purchases WHERE id = :purchas
 
 # gets purchases for a user (all or specific purchase)
 @router.get("/", tags=["purchase"])
-def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort_by: str = "date", sort_order: str = "asc"):
+def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort_by: str = "date", sort_order: str = "asc", item: str = "%", category: str = "%", price_start: int = 0, price_end: int = sys.maxsize):
     """ """
     ans = []
 
@@ -43,6 +44,15 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
         raise HTTPException(status_code=400, detail="Invalid sort_by")
     if sort_order not in ["asc", "desc"]:
         raise HTTPException(status_code=400, detail="Invalid sort_order")
+    
+    # check if price_start and price_end is valid
+    if price_start < 0:
+        raise HTTPException(status_code=400, detail="Invalid price_start")
+    if price_end < 0:
+        raise HTTPException(status_code=400, detail="Invalid price_end")
+    
+    item = f"%{item}%"
+    category = f"%{category}%"
 
     try: 
         with db.engine.begin() as connection:
@@ -70,10 +80,11 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         SELECT purchases.id, item, price, category, warranty_date, return_date, quantity
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
-                        WHERE transaction_id = :transaction_id AND user_id = :user_id
+                        WHERE transaction_id = :transaction_id AND user_id = :user_id 
+                        AND item ILIKE :item AND category ILIKE :category AND (price BETWEEN :price_start AND :price_end)
                         ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id, "user_id": user_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end}]).mappings().all()
             else:
                 # check if purchase exists and belongs to transaction
                 result = connection.execute(
@@ -95,9 +106,10 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
+                        AND item ILIKE :item AND category ILIKE :category AND (price BETWEEN :price_start AND :price_end)
                         ORDER BY {sort_by} {sort_order}
                         """
-                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "user_id": user_id}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 

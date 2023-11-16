@@ -73,8 +73,14 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
     if sort_order not in ["asc", "desc"]:
         raise HTTPException(status_code=400, detail="Invalid sort_order")
     
+    # check if date_from and date_to are valid
+    if not is_valid_date(date_from):
+        raise HTTPException(status_code=400, detail="Invalid date_from")
+    if not is_valid_date(date_to):
+        raise HTTPException(status_code=400, detail="Invalid date_to")
+    
     offset = (page - 1) * page_size
-    if merchant != "%": merchant = f"%{merchant}%"
+    merchant = f"%{merchant}%"
 
     try: 
         with db.engine.begin() as connection:
@@ -113,7 +119,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
                         f"""
                         SELECT id, merchant, description, date
                         FROM transactions
-                        WHERE user_id = :user_id AND id = :transaction_id AND (date BETWEEN :date_from AND :date_to) AND merchant LIKE :merchant
+                        WHERE user_id = :user_id AND id = :transaction_id AND (date BETWEEN :date_from AND :date_to) AND merchant ILIKE :merchant
                         ORDER BY {sort_by} {sort_order}
                         LIMIT :page_size OFFSET :offset
                         """
