@@ -67,7 +67,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                 ans = connection.execute(
                     sqlalchemy.text(
                         f"""
-                        SELECT id, item, price, category, warranty_date, return_date, quantity
+                        SELECT purchases.id, item, price, category, warranty_date, return_date, quantity
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id
@@ -91,7 +91,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                 ans = connection.execute(
                     sqlalchemy.text(
                         f"""
-                        SELECT id, item, price, category, warranty_date, return_date, quantity
+                        SELECT purchases.id, item, price, category, warranty_date, return_date, quantity
                         FROM purchases
                         JOIN transactions ON purchases.transaction_id = transactions.id
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
