@@ -35,7 +35,7 @@ check_purchase_query = "SELECT transaction_id FROM purchases WHERE id = :purchas
 
 # gets purchases for a user (all or specific purchase)
 @router.get("/", tags=["purchase"])
-def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort_by: str = "date", sort_order: str = "asc", item: str = "%", category: str = "%", price_start: int = 0, price_end: int = sys.maxsize):
+def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc", item: str = "%", category: str = "%", price_start: int = 0, price_end: int = sys.maxsize):
     """ """
     ans = []
 
@@ -51,6 +51,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
     if price_end < 0:
         raise HTTPException(status_code=400, detail="Invalid price_end")
     
+    offset = (page - 1) * page_size
     item = f"%{item}%"
     category = f"%{category}%"
 
@@ -83,8 +84,9 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         WHERE transaction_id = :transaction_id AND user_id = :user_id 
                         AND item ILIKE :item AND category ILIKE :category AND (price BETWEEN :price_start AND :price_end)
                         ORDER BY {sort_by} {sort_order}
+                        LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"transaction_id": transaction_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end, "page_size": page_size, "offset": offset}]).mappings().all()
             else:
                 # check if purchase exists and belongs to transaction
                 result = connection.execute(
@@ -108,8 +110,9 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, sort
                         WHERE transaction_id = :transaction_id AND user_id = :user_id AND purchases.id = :purchase_id
                         AND item ILIKE :item AND category ILIKE :category AND (price BETWEEN :price_start AND :price_end)
                         ORDER BY {sort_by} {sort_order}
+                        LIMIT :page_size OFFSET :offset
                         """
-                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end}]).mappings().all()
+                    ), [{"transaction_id": transaction_id, "purchase_id": purchase_id, "user_id": user_id, "item": item, "category": category, "price_start": price_start, "price_end": price_end, "page_size": page_size, "offset": offset}]).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
