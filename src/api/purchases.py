@@ -297,30 +297,3 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
 
     return {"item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}
 
-
-
-
-# gets sum of money spent of different catagories of all purchases for a user
-@router.get("/categories", tags=["purchase"])
-def get_sum_per_category(user_id: int, transaction_id: int):
-    """ """
-    ans = []
-
-    try: 
-        with db.engine.begin() as connection:
-            # ans stores query result as list of dictionaries/json
-            ans = connection.execute(
-                sqlalchemy.text(
-                    """
-                    SELECT category, SUM(price) AS total
-                    FROM purchases
-                    WHERE transaction_id = :transaction_id
-                    GROUP BY category
-                    """
-                ), [{"transaction_id": transaction_id}]).mappings().all()
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-    print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
-
-    return ans
