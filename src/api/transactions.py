@@ -15,6 +15,32 @@ class NewTransaction(BaseModel):
     merchant: str
     description: str
 
+# gets sum of money spent of different catagories of all purchases in a specific transaction for a user
+@router.get("/{transaction_id}/categories", tags=["transaction"])
+def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
+    """ """
+    ans = []
+
+    try: 
+        with db.engine.begin() as connection:
+            # ans stores query result as list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT category, SUM(price) AS total
+                    FROM purchases
+                    WHERE transaction_id = :transaction_id
+                    GROUP BY category
+                    ORDER BY total
+                    """
+                ), [{"transaction_id": transaction_id}]).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
+
+    return ans
+
 # gets all transactions for a user
 @router.get("/", tags=["transaction"])
 def get_transactions(user_id: int):
