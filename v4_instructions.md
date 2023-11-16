@@ -131,7 +131,7 @@ Data Privacy and Access Control:
 
 Directly Returning Query Results:
 
-In functions like get_user, there's a concern about directly returning the query results (CursorResult) without explicitly defining what is being returned. This could become problematic, especially if the query or function logic becomes more complex, leading to potential confusion or errors in data handling.
+❌ In functions like get_user, there's a concern about directly returning the query results (CursorResult) without explicitly defining what is being returned. This could become problematic, especially if the query or function logic becomes more complex, leading to potential confusion or errors in data handling.
 
 Non-existent Transaction/Purchase Handling:
 
@@ -146,7 +146,7 @@ Merging Similar Functions:
 ✅ Suggestions are made to merge similar functions like get_transaction and get_transactions, where the former could be a specific case of the latter with an optional transaction ID parameter. This would enhance code efficiency and readability.
 Error Handling and Exception Management:
 
-There are multiple instances where more robust error handling and exception management are recommended, especially in scenarios where the data may not exist or the user input could lead to errors.
+✅ There are multiple instances where more robust error handling and exception management are recommended, especially in scenarios where the data may not exist or the user input could lead to errors.
 
 #### Schema Design Comments:
 
@@ -226,7 +226,7 @@ I did some research and found that it's recommended to store images as binary da
 
 You likely need an additional table to store ChatGPT messages and interactions to then parse through when implementing functionality.
 
-Date values: I think tracking would benefit if a date value was added to the purchase and receipt tables for when each occurred.
+✅ Date values: I think tracking would benefit if a date value was added to the purchase and receipt tables for when each occurred.
 
 ❌ A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap.
 
@@ -260,10 +260,10 @@ Implementation of Specified Flows and Functionalities: There are multiple mentio
 
 #### Product Ideas:
 
-Search/Sorting endpoint
+✅ Search/Sorting endpoint
 You could create a more versatile way for a user to look through their purchases with a searching endpoint similar to the one from the potion shops. Users could search for purchases that fall under a transaction from a particular merchant or search for purchases of a particular item or both.
 
-If there are multiple transactions from the same merchant this would let users see what and how much they buy from certain stores. If you also add a way for people to sort based on different attributes like the purchase date, item name, price, etc. It could help users further evaluate their own spending habits.
+✅ If there are multiple transactions from the same merchant this would let users see what and how much they buy from certain stores. If you also add a way for people to sort based on different attributes like the purchase date, item name, price, etc. It could help users further evaluate their own spending habits.
 
 Searching for particular items purchased could let users evaluate how often they buy a particular item for example.
 
