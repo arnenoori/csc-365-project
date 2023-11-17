@@ -153,6 +153,7 @@ def update_budget(user_id: int, budget_id: int, budget: NewBudget):
     """ """
     # check if budget is valid (NOT WORKING )
     for category, amt in vars(budget).items():
+        print(f"category: {category}, amt: {amt}")
         if amt is None or not isinstance(amt, int) or amt < 0:
             raise HTTPException(status_code=400, detail="Invalid budget")
         if category not in ["groceries",
