@@ -273,7 +273,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     return comparisons
 
 # gets sum of money spent of different catagories of all purchases for a user
-@router.get("/{user_id}/categories", tags=["user"])
+@router.get("/categories", tags=["budget"])
 def get_all_purchases_categorized(user_id: int):
     """ """
     ans = []
