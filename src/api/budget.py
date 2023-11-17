@@ -70,7 +70,17 @@ def create_budget(user_id: int, budget: NewBudget):
                 sqlalchemy.text(check_user_query), 
                 [{"user_id": user_id}]).fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="User not found")            
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # check if user already has a budget
+            result = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id FROM budgets WHERE user_id = :user_id
+                    """
+                ), [{"user_id": user_id}]).fetchone()
+            if result is not None:
+                raise HTTPException(status_code=400, detail="User already has a budget")        
 
             # add budget to database
             budget_id = connection.execute(
