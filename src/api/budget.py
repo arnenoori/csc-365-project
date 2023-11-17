@@ -34,6 +34,8 @@ class NewBudget(BaseModel):
 def is_valid_date(date_string, format='%Y-%m-%d'):
     try:
         datetime.strptime(date_string, format)
+        year, month, day = date_string.split('-')
+        if len(year) != 4 or len(month) != 2 or len(day) != 2: return False
         return True
     except ValueError:
         return False
@@ -213,6 +215,10 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
                 raise HTTPException(status_code=400, detail="Invalid date_from")
             if date_to is not None and not is_valid_date(date_to):
                 raise HTTPException(status_code=400, detail="Invalid date_to")
+            if date_from is None and date_to is not None:
+                raise HTTPException(status_code=400, detail="date_from must be specified if date_to is specified")
+            if date_from is not None and date_to is None:
+                raise HTTPException(status_code=400, detail="date_to must be specified if date_from is specified")
             
             # set date_from to first day of current month and date_to to current day if not specified
             now = datetime.now()
@@ -280,11 +286,11 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     comparisons = {}
     for category in budgets_dict.keys():
         if category in actual_spending_dict:
-            comparisons[category] = (actual_spending_dict[category], budgets_dict[category])
+            comparisons[category] = {"actual": actual_spending_dict[category], "budget": budgets_dict[category]}
         else:
-            comparisons[category] = (0, budgets_dict[category])
+            comparisons[category] = {"actual": 0, "budget": budgets_dict[category]}
     
-    # in form of {category: (actual spending, budget), ...}
+    # in form of {category: {actual: amt, budget: amt}, ...}
     return comparisons
 
 # gets sum of money spent of different catagories of all purchases for a user

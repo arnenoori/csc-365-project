@@ -20,10 +20,11 @@ class NewTransaction(BaseModel):
 def is_valid_date(date_string, format='%Y-%m-%d'):
     try:
         datetime.strptime(date_string, format)
+        year, month, day = date_string.split('-')
+        if len(year) != 4 or len(month) != 2 or len(day) != 2: return False
         return True
     except ValueError:
         return False
-
 check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
