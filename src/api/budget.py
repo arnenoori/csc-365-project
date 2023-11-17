@@ -135,7 +135,7 @@ def get_budgets(user_id: int):
     except DBAPIError as error:
         print(f"DBAPIError returned: <<<{error}>>>")
 
-    return dict(ans)
+    return dict(ans._mapping)
 
 # updates a user's monthly budgets
 @router.put("/{budget_id}", tags=["budgets"])
