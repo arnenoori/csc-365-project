@@ -28,7 +28,7 @@ check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transact
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
 # gets sum of money spent of different catagories of all purchases in a specific transaction for a user
-@router.get("/{transaction_id}/categories", tags=["transaction"])
+@router.get("/{transaction_id}/categories", tags=["transactions"])
 def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
     """ """
     ans = []
