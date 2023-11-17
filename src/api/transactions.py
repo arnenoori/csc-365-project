@@ -25,6 +25,7 @@ def is_valid_date(date_string, format='%Y-%m-%d'):
         return True
     except ValueError:
         return False
+
 check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 

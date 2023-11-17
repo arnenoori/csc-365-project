@@ -24,7 +24,7 @@ def is_valid_name(name):
     name_regex = r'^[A-Za-z\'\-_]+$'
     return bool(re.match(name_regex, name))
 
-check_user_query = "SELECT id FROM users WHERE id = :user_id"\
+check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
 
 # creates a new user
