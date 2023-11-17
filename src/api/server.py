@@ -36,7 +36,6 @@ app.include_router(transactions.router)
 app.include_router(users.router)
 app.include_router(purchases.router)
 app.include_router(admin.router)
-app.include_router(auth.router)
 app.include_router(budget.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
