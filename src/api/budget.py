@@ -151,7 +151,7 @@ def get_budgets(user_id: int):
 @router.put("/{budget_id}", tags=["budgets"])
 def update_budget(user_id: int, budget_id: int, budget: NewBudget):
     """ """
-    # check if budget is valid
+    # check if budget is valid (NOT WORKING )
     for category, amt in vars(budget).items():
         if amt is None or not isinstance(amt, int) or amt < 0 or category not in ["groceries",
             "clothing_and_accessories", "electronics", "home_and_garden", "health_and_beauty", "entertainment", 
@@ -218,9 +218,17 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
                 raise HTTPException(status_code=400, detail="Invalid date_from")
             if date_to is not None and not is_valid_date(date_to):
                 raise HTTPException(status_code=400, detail="Invalid date_to")
-            if not is_first_day_of_month(date_from):
+            
+            # set date_from to first day of current month and date_to to current day if not specified
+            now = datetime.now()
+            if date_from is None:
+                date_from = datetime(now.year, now.month, 1).date()
+            elif not is_first_day_of_month(date_from):
                 raise HTTPException(status_code=400, detail="date_from must be first day of month")
-            if not is_last_day_of_month(date_to):
+            if date_to is None:
+                # current day is fine b/c there shouldn't be any purchases in the future
+                date_to = datetime(now.year, now.month, now.day).date()
+            elif not is_last_day_of_month(date_to):
                 raise HTTPException(status_code=400, detail="date_to must be last day of month")
             
             # check if user exists
@@ -243,14 +251,6 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
                 ), [{"user_id": user_id}]).fetchone()
             if budgets is None:
                 raise HTTPException(status_code=404, detail="Budget not found")
-            
-            # set date_from to first day of current month and date_to to current day if not specified
-            now = datetime.now()
-            if date_from is None:
-                date_from = datetime(now.year, now.month, 1).date()
-            if date_to is None:
-                # current day is fine b/c there shouldn't be any purchases in the future
-                date_to = datetime(now.year, now.month, now.day).date()
 
             # gets actual spending from database
             actual_spending = connection.execute(
