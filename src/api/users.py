@@ -172,3 +172,30 @@ def update_user(user_id: int, new_user: NewUser):
         print(f"Error returned: <<<{error}>>>")
 
     return {"name": name, "email": email}
+
+# gets sum of money spent of different catagories of all purchases for a user
+@router.get("/{user_id}/categories", tags=["user"])
+def get_all_purchases_categorized(user_id: int):
+    """ """
+    ans = []
+
+    try: 
+        with db.engine.begin() as connection:
+            # ans stores query result as list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT category, SUM(price) AS total
+                    FROM purchases AS p
+                    JOIN transactions AS t ON p.transaction_id = t.id
+                    WHERE t.user_id = :user_id
+                    GROUP BY category
+                    ORDER BY total
+                    """
+                ), [{"user_id": user_id}]).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_PURCHASES_CATAGORIZED: {ans}")
+
+    return ans
