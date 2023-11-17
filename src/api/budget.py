@@ -267,7 +267,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     actual_spending_dict = {}
     for row in actual_spending:
         if row.category is not None:
-            actual_spending_dict[row.category] = row.total
+            actual_spending_dict[row.category.lower().replace(" ", "_")] = row.total
         else:
             actual_spending_dict['other'] = row.total
 
@@ -275,7 +275,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
 
     # compare actual spending to budget
     comparisons = {}
-    for category in budgets.keys():
+    for category,amount in dict(budgets._mapping).items():
         comparisons[category] = (actual_spending_dict[category], budgets[category])
     
     # in form of {category: (actual spending, budget), ...}
