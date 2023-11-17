@@ -153,11 +153,13 @@ def update_budget(user_id: int, budget_id: int, budget: NewBudget):
     """ """
     # check if budget is valid (NOT WORKING )
     for category, amt in vars(budget).items():
-        if amt is None or not isinstance(amt, int) or amt < 0 or category not in ["groceries",
+        if amt is None or not isinstance(amt, int) or amt < 0:
+            raise HTTPException(status_code=400, detail="Invalid budget")
+        if category not in ["groceries",
             "clothing_and_accessories", "electronics", "home_and_garden", "health_and_beauty", "entertainment", 
             "travel", "automotive", "services", "gifts_and_special_occasions", "education", "fitness_and_sports", 
             "pets", "office_supplies", "financial_services", "other"]:
-            raise HTTPException(status_code=400, detail="Invalid budget")
+            raise HTTPException(status_code=400, detail="Invalid category")
 
     try:
         with db.engine.begin() as connection:
