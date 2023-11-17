@@ -57,10 +57,8 @@ def create_budget(user_id: int, budget: NewBudget):
 
     # check if budget is valid
     for category, amt in vars(budget).items():
-        if (amt is not None and (not isinstance(amt, int) or amt < 0)) or category not in ["groceries",
-            "clothing_and_accessories", "electronics", "home_and_garden", "health_and_beauty", "entertainment", 
-            "travel", "automotive", "services", "gifts_and_special_occasions", "education", "fitness_and_sports", 
-            "pets", "office_supplies", "financial_services", "other"]:
+        print(f"category: {category}, amt: {amt}")
+        if (amt is not None and (not isinstance(amt, int) or amt < 0)):
             raise HTTPException(status_code=400, detail="Invalid budget")
     
     try:
@@ -151,17 +149,11 @@ def get_budgets(user_id: int):
 @router.put("/{budget_id}", tags=["budgets"])
 def update_budget(user_id: int, budget_id: int, budget: NewBudget):
     """ """
-    # check if budget is valid (NOT WORKING )
+    # check if budget is valid
     for category, amt in vars(budget).items():
         print(f"category: {category}, amt: {amt}")
         if amt is None or not isinstance(amt, int) or amt < 0:
             raise HTTPException(status_code=400, detail="Invalid budget")
-        if category not in ["groceries",
-            "clothing_and_accessories", "electronics", "home_and_garden", "health_and_beauty", "entertainment", 
-            "travel", "automotive", "services", "gifts_and_special_occasions", "education", "fitness_and_sports", 
-            "pets", "office_supplies", "financial_services", "other"]:
-            raise HTTPException(status_code=400, detail="Invalid category")
-
     try:
         with db.engine.begin() as connection:
             # check if budget exists
@@ -234,6 +226,8 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             elif not is_last_day_of_month(date_to):
                 raise HTTPException(status_code=400, detail="date_to must be last day of month")
             
+            print(f"date_from: {date_from}, date_to: {date_to}")
+            
             # check if user exists
             result = connection.execute(
                 sqlalchemy.text(check_user_query), 
@@ -259,10 +253,10 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT SUM(price) AS total
+                    SELECT category, SUM(price) AS total
                     FROM purchases
                     JOIN transactions on purchases.transaction_id = transactions.id
-                    WHERE user_id = :user_id AND date BETWEEN :date_from AND :date_to
+                    WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to)
                     GROUP BY category
                     """
                 ), [{"user_id": user_id, "date_from": date_from, "date_to": date_to}]).all()
@@ -276,6 +270,8 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending_dict[row.category] = row.total
         else:
             actual_spending_dict['other'] = row.total
+
+    print(f"actual_spending_dict: {actual_spending_dict}")
 
     # compare actual spending to budget
     comparisons = {}
