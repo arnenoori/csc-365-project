@@ -263,6 +263,10 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     except DBAPIError as error:
         print(f"DBAPIError returned: <<<{error}>>>")
 
+    # convert budgets to dictionary
+    budgets_dict = dict(budgets._mapping)
+    print(f"budgets_dict: {budgets_dict}")
+
     # convert actual spending to dictionary
     actual_spending_dict = {}
     for row in actual_spending:
@@ -270,16 +274,15 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending_dict[row.category.lower().replace(" ", "_")] = row.total
         else:
             actual_spending_dict['other'] = row.total
-
     print(f"actual_spending_dict: {actual_spending_dict}")
 
     # compare actual spending to budget
     comparisons = {}
-    for category,amount in dict(budgets._mapping).items():
+    for category in budgets_dict.keys():
         if category in actual_spending_dict:
-            comparisons[category] = (actual_spending_dict[category], budgets[category])
+            comparisons[category] = (actual_spending_dict[category], budgets_dict[category])
         else:
-            comparisons[category] = (0, budgets[category])
+            comparisons[category] = (0, budgets_dict[category])
     
     # in form of {category: (actual spending, budget), ...}
     return comparisons
