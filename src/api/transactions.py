@@ -27,6 +27,32 @@ def is_valid_date(date_string, format='%Y-%m-%d'):
 check_transaction_query = "SELECT user_id FROM transactions WHERE id = :transaction_id"
 check_user_query = "SELECT id FROM users WHERE id = :user_id"
 
+# gets sum of money spent of different catagories of all purchases in a specific transaction for a user
+@router.get("/{transaction_id}/categories", tags=["transactions"])
+def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
+    """ """
+    ans = []
+
+    try: 
+        with db.engine.begin() as connection:
+            # ans stores query result as list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT category, SUM(price) AS total
+                    FROM purchases
+                    WHERE transaction_id = :transaction_id
+                    GROUP BY category
+                    ORDER BY total
+                    """
+                ), [{"transaction_id": transaction_id}]).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
+
+    return ans
+
 # creates a new transaction for a user
 @router.post("/", tags=["transactions"])
 def create_transaction(user_id: int, transaction: NewTransaction):
