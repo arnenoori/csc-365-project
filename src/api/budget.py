@@ -217,12 +217,12 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             # set date_from to first day of current month and date_to to current day if not specified
             now = datetime.now()
             if date_from is None:
-                date_from = datetime(now.year, now.month, 1).date()
+                date_from = datetime(now.year, now.month, 1).strftime('%Y-%m-%d')
             elif not is_first_day_of_month(date_from):
                 raise HTTPException(status_code=400, detail="date_from must be first day of month")
             if date_to is None:
                 # current day is fine b/c there shouldn't be any purchases in the future
-                date_to = datetime(now.year, now.month, now.day).date()
+                date_to = datetime(now.year, now.month, now.day).strftime('%Y-%m-%d')
             elif not is_last_day_of_month(date_to):
                 raise HTTPException(status_code=400, detail="date_to must be last day of month")
             
@@ -276,7 +276,10 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     # compare actual spending to budget
     comparisons = {}
     for category,amount in dict(budgets._mapping).items():
-        comparisons[category] = (actual_spending_dict[category], budgets[category])
+        if category in actual_spending_dict:
+            comparisons[category] = (actual_spending_dict[category], budgets[category])
+        else:
+            comparisons[category] = (0, budgets[category])
     
     # in form of {category: (actual spending, budget), ...}
     return comparisons
