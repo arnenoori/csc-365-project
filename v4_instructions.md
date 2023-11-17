@@ -276,7 +276,7 @@ Something like a user inputting how much money they make in a month and the endp
 
 Or maybe the endpoint could take in just how much money the person currently has left and return how much they could spend per day for the rest of the month and If they have spent more per day on average per day in the last month than the suggested amount it could suggest some of the most expensive purchases to avoid in the coming days.
 
-Or something else, I think there are many ways to leverage information about someones purchases and simple information that someone inputs in order to make financial/budgeting goals.
+✅ Or something else, I think there are many ways to leverage information about someones purchases and simple information that someone inputs in order to make financial/budgeting goals.
 
 
 I think it would be cool to have an endpoint that looks through the history of purchases and provides suggestions for the stores they should continue purchasing a certain item from. Like if one store has a better deal on an item, it should suggest to the user to continue buying the item from that store. For example, the endpoint can find all purchases of bananas from different stores, and return the store with the best price. It can look at frequent purchases of certain items, and provide the best place to purchase said item.
