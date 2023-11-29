@@ -178,13 +178,13 @@ For the date values (warranty_date, return_date), there should be an additional 
 9) Some lines of code are really long. It would be nice to shorten them by splitting up certain lines.
   - ❌ stylistic choice although did shorten certain longer lines
 10) Add a linter to your codebase to help with picking up on issues.
-  - ❌ 
+  - ❌ prefer not to with this project
 11) Add a code formatter to make sure there is a consistent style across all code written by contributors.
-  - ❌ 
+  - ❌ since there are only 4 of us, we a code formatter isn't absolutely required
 12) Edit your project README file on GH, and add a "Contributing" section describing your coding standards, or pointing to the style guide(s) that should be followed by code contributors in your project. Also, provide instructions on how to set up IDE plugins if you have used them.
-      - ❌ 
+      - ❌ only us 4 are going to contribute to this project and we all already know how to contribute to it, so no need
 13) Implement a cron so that when users hit your endpoints it is faster.
-  - ❌ 
+  - ❌ the SwaggerUI already exists which already simplifies the calling of endpoints
 14) POST purchase function should be able to receive negative numbers or there should be some kind of error message explaining that only positive numbers should be put in the request.
 - ✅  addressed earlier
 
