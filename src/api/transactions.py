@@ -53,6 +53,7 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
 
     print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
 
+    # returns {"category": "total", ...}
     return ans
 
 # creates a new transaction for a user
@@ -157,6 +158,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
 
     print(f"USER_{user_id}_TRANSACTIONS_PAGE_{page}: {ans}")
 
+    # returns [{"id": id, "merchant": merchant, "description": description, "date": date}, ...]
     return ans
 
 # deletes a specific transaction for a user
