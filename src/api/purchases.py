@@ -298,4 +298,3 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
         print(f"Error returned: <<<{error}>>>")
 
     return {"item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}
-
