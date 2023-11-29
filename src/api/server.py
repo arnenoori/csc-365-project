@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, exceptions, File, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import transactions, admin, auth, users, purchases
+from src.api import transactions, admin, auth, users, purchases, budget
 from src import database as db
 import sqlalchemy
 from sqlalchemy.exc import DBAPIError
@@ -17,6 +17,7 @@ from src.api.transactions import create_transaction
 from src.api.purchases import create_purchase
 from src.api.transactions import NewTransaction
 from src.api.purchases import NewPurchase
+import sys
 
 description = """
 Receipt App
@@ -103,7 +104,7 @@ async def upload_receipt_to_S3(user_id: int, file: UploadFile = File(...)):
     await s3_upload(contents=contents, key=f'{file.filename}.{int(upload_time)}.{SUPPORTED_FILES[file_type]}')
     print("upload successful")
     
-    image_url = f'https://{os.getenv('AWS_S3_BUCKET_NAME')}.s3.us-west-1.amazonaws.com/{file.filename}.{int(upload_time)}.{SUPPORTED_FILES[file_type]}'
+    image_url = f"https://{os.getenv('AWS_S3_BUCKET_NAME')}.s3.us-west-1.amazonaws.com/{file.filename}.{int(upload_time)}.{SUPPORTED_FILES[file_type]}"
 
     #once this returns, all receipt info will be in purchases and transactions table assuming openai func works with proper formatting
     transaction_id = await openai_process_receipt(user_id=user_id, img_url=image_url, file=file)
@@ -243,6 +244,7 @@ app.include_router(transactions.router)
 app.include_router(users.router)
 app.include_router(purchases.router)
 app.include_router(admin.router)
+app.include_router(budget.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)
