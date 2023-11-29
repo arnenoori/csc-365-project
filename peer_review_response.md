@@ -125,3 +125,67 @@ I would change the way price is currently stored to only handle dollar and cents
 For the date values (warranty_date, return_date), there should be an additional constraint to ensure that you can't enter in a random string as a value. This is something I ran into while testing.
 - ✅  added proper error handling and checks for inputs
 
+  
+### Felicia Patel
+1. Implement the endpoints from the ExampleFlows.md file: dashboard, recommendations, export, authenticate, goal
+- ❌ some of them have been scrapped but the ones meant to be kept have been implemented
+  
+2. Transactions.py: get_transaction takes in a user_id, but does not use it in the query. If it is not necessary, I would remove that parameter. Otherwise, it would be a good thing to implement into the query as you want to make sure it is specific to a certain user.
+- ✅  addressed earlier
+
+  
+3. Transactions.py: get_transaction and get_transactions seem to do the same thing. I would try to make a transaction_id an optional parameter if the user wants a specific transaction, otherwise return all.
+- ✅  addressed earlier
+
+4. Transactions.py: update_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
+- ✅  addressed earlier
+5. Transactions.py: delete_transaction takes in a user_id but does not use it in the query. Try to implement it to ensure the transaction given is specific to the user.
+- ✅  addressed earlier
+6. Transactions.py: update_transaction returns the merchant and description even when the user or transaction ids do not exist. I think it would be better for a message to indicate whether the ids exist and if the task was possible.
+- ✅  addressed earlier
+7. Transactions.py: It might be a good idea here to check if a user exists for the case of getting transactions. It does return an empty array with an user_id that doesn’t exist, but it kind of indicates that the user does exist when it returns something expected. Maybe here you can return an error message that indicates the user does not exist.
+- ✅  addressed earlier
+8. Users.py: Including a password field would be beneficial. Especially with the auth/signin endpoint from the example flows, if implemented.
+- ❌ proper password auth seems to be outside the scope of this project
+9. Users.py: get_user has an issue with handling a user that does not exist. Instead of the exception error being raised, a 500 error is seen in the render docs. Make sure the correct error is being raised (404 status code in the get_user endpoint)
+- ✅  addressed earlier
+10. Users.py: update_user returns something unexpected when an update should fail due to the user corresponding with a certain user_id not there. It should return a message like: user_id not found, or something like this instead of the name and email to be changed when a user doesn’t exist.
+- ✅  addressed earlier
+11. Users.py: many of the endpoints should check if a user exists or not. When testing with user_id that does not exist, the behavior of the endpoints makes it seem like the actions are valid. I think it would be good to have a message indicating the user doesn’t exist
+- ✅  addressed earlier
+12. Purchases.py: all endpoints take in a user_id, but do not use in the query. The only place I see it being used is for a print statement. I think it would be beneficial to take in the user_id and use it just to ensure that the correct information is returned specific to a user.
+- ✅  addressed earlier
+13. Purchases.py: the get endpoints have the same functionality, so I think it would be nice to compress the two. Maybe have the transaction_id as an optional field, like the get endpoints in transactions.py.
+- ✅ combined to create one bigger function
+14. Purchases.py: for the price input, I see that it is a float. It could be a good option for the endpoint to handle cases where a user just puts the dollar amount like 500 instead of 500.00. Probably unnecessary, but could be a nice thing to have with users being lazy.
+  - ✅  changed price to int of cents
+ 
+### Nick Perlich
+1) There should be more comments explaining logic inside functions. I ideally would like to read the function like a paragraph.
+- ✅  added more comments
+3) It would be nice to get a little blurb at the top of each file explaining what it represents or what the file’s main purpose is.
+- ❌ I think the file's names are pretty self-explanatory, as they title what all the functions are related to.
+4) Transaction and purchase are quite similar words. It would be nice to change the names of these files to make them more distinct.
+- ❌ stylistic choice
+5) There are comments describing what a function returns on some of the functions which are really nice. They would improve the readability of functions that do not have these comments a lot.
+- ✅  added to all get_functions
+6) It would be good if variable names better represented what they contain. Specifically, changing abbreviations to full words would be nice for readability.
+  - ❌ stylistic choice
+7) Add security measures in place to stop bad actors from randomly posting, deleting or updating information in the database.
+- ✅  addressed earlier
+8) Delete empty files to have a cleaner and more organized code base.
+  - ✅  deleted empty files
+9) Some lines of code are really long. It would be nice to shorten them by splitting up certain lines.
+  - ❌ stylistic choice although did shorten certain longer lines
+10) Add a linter to your codebase to help with picking up on issues.
+  - ❌ 
+11) Add a code formatter to make sure there is a consistent style across all code written by contributors.
+  - ❌ 
+12) Edit your project README file on GH, and add a "Contributing" section describing your coding standards, or pointing to the style guide(s) that should be followed by code contributors in your project. Also, provide instructions on how to set up IDE plugins if you have used them.
+      - ❌ 
+13) Implement a cron so that when users hit your endpoints it is faster.
+  - ❌ 
+14) POST purchase function should be able to receive negative numbers or there should be some kind of error message explaining that only positive numbers should be put in the request.
+- ✅  addressed earlier
+
+
