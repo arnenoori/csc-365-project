@@ -1,6 +1,6 @@
 # Peer Review Feedback
 ## Code Reviews:
-### Ash Mitchell:
+### Ash Mitchell
 1. Return statement outside try block 
 This may be personal preference (in fact maybe this is an incorrect suggestion) but I find it more readable when the main return statement for a function is in the try block with the rest of the code instead of after the except DBAPIError. Like when you do something like `return {"user_id": user_id}` I like to see that return statement happen right after all the logic that you used to get that user id. It makes more sense to me because if you receive an exception in your code you will never get to a return statement after the exception handler anyway so why would you feel the need to put it outside the try block.
 - ❌ We simply prefer to leave the return statement at the end as a stylistic choice.
@@ -188,4 +188,131 @@ For the date values (warranty_date, return_date), there should be an additional 
 14) POST purchase function should be able to receive negative numbers or there should be some kind of error message explaining that only positive numbers should be put in the request.
 - ✅  addressed earlier
 
+## Schema/API Design
 
+### Ash Mitchell
+
+1. Most endpoints share a path with another operation
+I am not 100% sure if this is a problem but almost all of your endpoints share a path with another one (i.e. you use `/user/{user_id}` for all of: making, changing, and deleting a user). This is fine if you are calling the site from the docs and maybe an application program but I am just imagining what would happen if you were to put these paths directly into the browser. For example, neither getting or deleting a user require a json input, so if I just put `/user/{user_id}` into my browser is it going to create a user or delete one? I would suggest changing your paths to make them all unique in some way.
+- ❌ stylistic choice
+2. Consider making email part of primary key or at least constraining it to be unique
+If you go on to use email and password in any form of authentication you will probably want email to be unique such that when you are validating passwords you don't end up checking against another user's password.
+- ✅  emails are now unique
+3. Users can change their email?
+I understand why you made it possible for users to change their name but if email is used as a way to uniquely identify the user as their username (as suggested above) you might not want them changing their email all the time. I would suggest adding an unchangeable username attribute for users if you want users to be able to change their email. That way you can have people put in a username and password instead of an email when authenticating.
+- ❌ users should be able to change their email
+4. User password?
+Your table schema has no place for passwords or anything related to them. Your README suggests that the service will have logins and a dashboard for users but your schema and account creation endpoint don't seem to account for passwords
+- ❌ addressed earlier
+5. `/user/{user_id}/transactions/` Also output transaction_id
+I am imagining this endpoint would be used by users to see all the transaction they have in the system if they have forgotten them. It could be very useful but what if they want to edit or remove a transaction that they see on the list? Unless they happen to have their own personal list of transactions with their associated transaction_ids, they will have no way of knowing what the transaction_ids for all those transactions are and would have no way of changing them. You should list the transaction_id along with the merchant, description, and created_at.
+- ✅  added id to output
+6. `/user/{user_id}/purchases/` Also output purchase_id
+For a similar reason as above, you probably want to be returning the information necessary to actually work with those purchases that someone asks for. You should list the purchase_id alongside the other details of the purchase.
+- ✅  added id to output
+7. `/user/{user_id}/transactions/` Probably don't need created_at to be listed
+I am assuming that in many use cases for this service, the created_at field of the transactions is not going to match the actual time the transaction occurred in real life so the created_at field may be unnecessary when listing a user's transactions.
+- ✅  added date instead of created at to output
+8. Purchases have warranty and return dates, but not a purchase date? 
+I might suggest adding a purchase date to either the transactions or purchases table so that users have a way to track their purchases over time.
+- ✅  added date instead of created at to output
+9. How are Receipts used by a user
+I see that you have a table for receipts which you stated would be text which was converted from images of a receipt. There is no way however for a user to view or change the content of the receipt. Are you going to convert the receipt into a transaction and purchases automatically and then make those things available for the user to edit as needed?
+- ✅  implemented receipts
+10. Financial Goals
+Your README and ER diagram mentions financial goals and planning. You don't have any tables related to financial goals listed in your schema and there are no endpoints to create, view, or alter a financial goal.
+- ❌ scrapped this idea
+11. How are you tracking and evaluating budgets
+If you only have information about the purchases the user is making, how are you going to do any budget tracking or suggestions? I would suggest maybe having a user input their monthly income and using the purchase dates or purchases to see if they are on track with their budget or something like that. Or if you prefer you could use the financial goals mentioned above somehow to track or suggest budget information as well.
+- ✅  implemented budgets
+12. ER diagram mismatch
+Your ER diagram does not accurately depict the entities you have within your application. Purchases should probably be connected to a transaction entity which connects to users in order to accurately depict the way your tables are connected to each other.
+- ❌ updated what we wanted to do with this project
+
+### Felicia Patel
+
+1. The purchase endpoint has fields to reflect warranty and return date. Sometimes these fields don’t apply to all purchases like food items. I see they are optional, but might be a nice touch to differentiate the categories.
+- ❌ no need, warranty and return dates can be null if not applicable
+
+3. Example flows/API Specs out of date: reflect flows from V2 into ExampleFlows.md as they are not listed.
+- ✅  addressed earlier
+
+4. Example flows/API Specs out of date: API specs should include the endpoints mentioned in the ExampleFlows.md (dashboard, recommendations, export, authenticate, goal)
+- ✅  addressed earlier
+
+5. Receipts Table: Either implement or remove as it is not being used at this state
+- ✅  implemented receipts
+6. Receipts Table: has a field for an image, but the value is text. Update to the right data type if an image is possible, otherwise provide an alternative solution.
+- ✅  implemented receipts
+7. Receipts Table: both fields (transaction_id and image) should be required fields, if implemented.
+- ✅  implemented receipts
+8. Purchases Table: Category attribute seems like something that should be a required field. It can be beneficial for the example flows listed in ExampleFlows.md (Financial advice, recommendations)
+- ✅  made them required
+9. Purchases Table: Price could have an option of being an int and the endpoint handles the case of adding the decimal places. People could be lazy and not enter the .00 part, but this isn’t super necessary.
+- ✅ made prices ints of cents
+10. Transactions Table: Merchant seems like it should be a required attribute. Description can be required, but maybe depends on whether that information will be used in another endpoint like recommendations (if implemented)
+- ✅ merchant is required
+11. I think it would be beneficial to have restrictions on the categories that a user can enter for future additions to the project (recommendations, etc). It can help strictly categorize and force the user to choose a certain category for their purchase. The transaction description however can remain up to the user.
+- ✅ added restrictions
+12. A filter option could be a good addition for getting the purchases. Like if a user wants purchases that reflect produce, they can just get those purchases rather than all.
+- ✅ added filter
+13. The email should probably constrain the end like @gmail, @yahoo, etc. That way only valid emails are used.
+- ✅ added email format checking
+14. A required password field would be good in the case of a login being implemented.
+  - ❌ addressed earlier
+15. The path for many of the endpoints is the same, but they do different things. For example: user/{user_id} is the same path for get, update and delete user. I would have a way to indicate which endpoint is which like user/get/{user_id} or something.
+  - ❌ addressed earlier
+16. Implementing the flows mentioned would be a great idea especially if the application is meant for helping users track their budget and receive suggestions! It would be a great addition to actually process the purchases and provide some sort of feedback rather than just serving as a storage for purchases/transactions.
+- ✅ added new functionality
+
+### Yashwant Sathish Kumar
+1. It would make sense to have a 'password' field tracked in your users table to authenticate users into the system properly. RIght now, it doesn't seem like the login logic has been implemented. 
+  - ❌ addressed earlier
+2. From what I see, there is no handling of financial goals in the tables, something that was mentioned in the README. It would make sense to have a 'goal' field tracked for users and their transactions.  
+- ✅  addressed earlier
+3. I did some research and found that it's recommended to store images as binary data in the database (bytea type). Images are currently stored as text types in the receipts table. 
+- ✅  addressed earlier
+4. You likely need an additional table to store ChatGPT messages and interactions to then parse through when implementing functionality. 
+  - ❌ removed this functionality
+5. Date values: I think tracking would benefit if a date value was added to the purchase and receipt tables for when each occurred. 
+- ✅  addressed earlier
+6. A lot of the endpoint paths are the same for transactions, purchases, and user despite accomplishing different tasks. I would try to work into the endpoint path an indication of what distinct function it serves for those that overlap. 
+- ✅  addressed earlier
+7. I think there should be an endpoint to view/update data from scanned receipts in the receipt table. Right now, there is no available access to that information.
+- ✅  data from reciepts is stored as purchases and transactions, so that is already possible
+8. In the receipts table, transaction_id and image should be required values, since entries are based on scanned receipts and are linked to transactions per the README.
+- ✅  addressed earlier
+9. In the purchases table, category should be a required value since you want to do analysis with this attribute moving forward. 
+- ✅  addressed earlier
+10. The email field in the users table should have an additional restriction to end with an email signature (@...) so that random text values aren't accepted as emails.
+- ✅  addressed earlier
+11. Missing table for storing summary/graphical data (Dashboard) for users and respective endpoints. I would add this table and respective foreign key links to the other tables. 
+- ✅  added budgets table
+12. While testing, I noted that the "get transactions" endpoint returned data that wasn't entirely relevant to the user. Instead of returning the date in which the table entry was created, a value reflecting the date in which the transaction actually occurred should be returned.
+  - ✅  addressed earlier
+
+### Nick Perlich
+1) You should let people set custom priorities for their goals.
+  - ✅  addressed earlier
+3) You should add a search functionality that lets users find purchases by merchant name for example.
+  - ✅  addressed earlier
+4) Giving financial advice can be very tricky in terms of legality. Be careful when you give those pieces of advice. Make sure to give some kind of explicit warning that you cannot be blamed for anything that goes wrong as a result of this advice. 
+  - ❌ removed this functionality
+5) Make sure that when you integrate ChatGPT, it should be explicitly clear to users that these recommendations are not coming from a human being.
+  - ❌ removed this functionality
+6) It could be nice if there was an option for the transaction description to be automatically generated.
+  - ❌ not within scope of this project
+7) I think there is too much trust in the user at this point with transactions and purchases. I think it might be better if you moved the merchant field to the Create Purchase endpoint and then in the backend a transaction was automatically generated.
+  - ❌ addressed earlier by checking transaction belongs to user
+8) You should add a password to Create User.
+  - ❌ addressed earlier
+9) It would be good to add some kind of check to make sure a user really wants to delete the thing they are deleting.
+  - ❌ no need, as that would greatly overcomplicate the process of deletion
+10) The same is true for confirming that a user wants to make a certain update.
+  - ❌ no need, as that would greatly overcomplicate the process of updating
+11) It would be nice if there was an endpoint similar to our potion shop’s audit that gives a summary of all your current spending statistics.
+  - ✅  added
+12) There should be some kind of protection for who can view transactions because bad actors might sell the spending data to send targeted advertisements that make it harder for people to succeed in achieving their goals.
+  - ✅  addressed earlier
+13) There should be some kind of fun reward system for making progress towards goals like maybe they get a cool emoji next to their username that represents various achievements.
+  - ❌ no need, as that doesn't align with our goals for the project
