@@ -25,6 +25,8 @@ class NewPurchase(BaseModel):
 def is_valid_date(date_string, format='%Y-%m-%d'):
     try:
         datetime.strptime(date_string, format)
+        year, month, day = date_string.split('-')
+        if len(year) != 4 or len(month) != 2 or len(day) != 2: return False
         return True
     except ValueError:
         return False
@@ -296,4 +298,3 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
         print(f"Error returned: <<<{error}>>>")
 
     return {"item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}
-

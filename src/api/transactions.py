@@ -20,6 +20,8 @@ class NewTransaction(BaseModel):
 def is_valid_date(date_string, format='%Y-%m-%d'):
     try:
         datetime.strptime(date_string, format)
+        year, month, day = date_string.split('-')
+        if len(year) != 4 or len(month) != 2 or len(day) != 2: return False
         return True
     except ValueError:
         return False
@@ -51,6 +53,7 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
 
     print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
 
+    # returns {"category": "total", ...}
     return ans
 
 # creates a new transaction for a user
@@ -155,6 +158,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
 
     print(f"USER_{user_id}_TRANSACTIONS_PAGE_{page}: {ans}")
 
+    # returns [{"id": id, "merchant": merchant, "description": description, "date": date}, ...]
     return ans
 
 # deletes a specific transaction for a user
