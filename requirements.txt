@@ -7,3 +7,4 @@ python-dotenv
 pre-commit 
 boto3
 requests
+python-multipart
