@@ -34,6 +34,14 @@ app = FastAPI(
     },
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 s3 = boto3.resource(
     's3',
     aws_access_key_id= os.environ.get('AWS_ACCESS_KEY_ID'),
