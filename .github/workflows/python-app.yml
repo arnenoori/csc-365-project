@@ -36,4 +36,5 @@ jobs:
           ruff --target-version=py37 .
       - name: Test with pytest
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest
