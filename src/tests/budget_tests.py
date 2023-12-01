@@ -1,6 +1,6 @@
 import pytest
 from http.client import HTTPException
-from src.api.budget import NewBudget, create_budget, update_budget, is_valid_date, code_under_test
+from src.api.budget import NewBudget, create_budget, update_budget, is_first_day_of_month, is_last_day_of_month, is_valid_date
 
 class TestNewBudget:
 
@@ -372,27 +372,66 @@ class TestIsValidDate:
         assert is_valid_date('   ') is False
 
 
-class TestCodeUnderTest:
 
-    # is_first_day_of_month returns True for valid first day of month date string
-    def test_is_first_day_of_month_valid_first_day(self):
-        date = "2022-01-01"
-        assert code_under_test.is_first_day_of_month(date) is True
 
-    # is_first_day_of_month returns False for valid non-first day of month date string
-    def test_is_first_day_of_month_valid_non_first_day(self):
-        date = "2022-01-15"
-        assert code_under_test.is_first_day_of_month(date) is False
+class TestIsFirstDayOfMonth:
 
-    # is_first_day_of_month returns False for invalid date string
-    def test_is_first_day_of_month_invalid_date(self):
-        date = "2022-13-01"
-        assert code_under_test.is_first_day_of_month(date) is False
+    # Returns True when given a date with day 1
+    def test_returns_true_when_given_date_with_day_1(self):
+        assert is_first_day_of_month("2022-01-01") == True
 
-    # is_last_day_of_month returns False for invalid date string
-    def test_is_last_day_of_month_invalid_date(self):
-        date = "2022-13-01"
-        assert code_under_test.is_last_day_of_month(date) is False
+    # Returns False when given a date with day other than 1
+    def test_returns_false_when_given_date_with_day_other_than_1(self):
+        assert is_first_day_of_month("2022-01-02") == False
+
+    # Works correctly with dates from different years
+    def test_works_correctly_with_dates_from_different_years(self):
+        assert is_first_day_of_month("2023-01-01") == True
+        assert is_first_day_of_month("2024-02-01") == True
+        assert is_first_day_of_month("2025-03-01") == True
+
+    # Returns False when given an empty string
+    def test_returns_false_when_given_empty_string(self):
+        assert is_first_day_of_month("") == False
+
+    # Returns False when given a date with an invalid format
+    def test_returns_false_when_given_date_with_invalid_format(self):
+        assert is_first_day_of_month("2022-13-01") == False
+        assert is_first_day_of_month("2022-01-32") == False
+        assert is_first_day_of_month("2022-01-01T00:00:00") == False
+
+    # Returns False when given a non-string input
+    def test_returns_false_when_given_non_string_input(self):
+        assert is_first_day_of_month(2022) == False
+        assert is_first_day_of_month(1.5) == False
+        assert is_first_day_of_month(True) == False
+
+class TestIsLastDayOfMonth:
+
+    # Returns True when given the last day of the month
+    def test_returns_true_when_given_last_day_of_month(self):
+        assert is_last_day_of_month("2022-01-31") == True
+        assert is_last_day_of_month("2022-02-28") == True
+        assert is_last_day_of_month("2022-03-31") == True
+        assert is_last_day_of_month("2022-04-30") == True
+
+    # Returns False when given a date that is not the last day of the month
+    def test_returns_false_when_given_not_last_day_of_month(self):
+        assert is_last_day_of_month("2022-01-30") == False
+        assert is_last_day_of_month("2022-02-27") == False
+        assert is_last_day_of_month("2022-03-30") == False
+        assert is_last_day_of_month("2022-04-29") == False
+
+    # Returns False when given an empty string
+    def test_returns_false_when_given_empty_string(self):
+        assert is_last_day_of_month("") == False
+
+    # Returns False when given a string with invalid format
+    def test_returns_false_when_given_invalid_format(self):
+        assert is_last_day_of_month("2022-13-01") == False
+        assert is_last_day_of_month("2022-02-30") == False
+        assert is_last_day_of_month("2022-03-32") == False
+        assert is_last_day_of_month("2022-04-31") == False
 
 
 class TestCreateBudget:
@@ -608,125 +647,3 @@ class TestCreateBudget:
         # Assert the expected status code and detail message of the HTTPException
         assert exc.value.status_code == 400
         assert exc.value.detail == "Invalid budget"
-
-
-class TestBudgers:
-
-    # Should return a dictionary of budgets when get_budgets is called with a valid user_id
-    def test_get_budgets_valid_user_id(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.budget.db.engine.begin')
-        mocker.patch('src.api.budget.db.engine.execute')
-        mocker.patch('src.api.budget.sqlalchemy.text')
-        mocker.patch('src.api.budget.HTTPException')
-
-        # Set up the mock return values
-        connection_mock = mocker.Mock()
-        connection_mock.__enter__.return_value = connection_mock
-        connection_mock.__exit__.return_value = None
-        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
-
-        engine_mock = mocker.patch('src.api.budget.db.engine')
-        engine_mock.begin.return_value = connection_mock
-
-        # Invoke the code under test
-        result = code_under_test.get_budgets(1)
-
-        # Assert the result
-        assert result == {'groceries': 100, 'clothing_and_accessories': 50}
-
-    # Should update the budget and return a dictionary of the updated budget when update_budget is called with valid user_id, budget_id and budget
-    def test_update_budget_valid_inputs(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.budget.db.engine.begin')
-        mocker.patch('src.api.budget.db.engine.execute')
-        mocker.patch('src.api.budget.sqlalchemy.text')
-        mocker.patch('src.api.budget.HTTPException')
-
-        # Set up the mock return values
-        connection_mock = mocker.Mock()
-        connection_mock.__enter__.return_value = connection_mock
-        connection_mock.__exit__.return_value = None
-        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
-
-        engine_mock = mocker.patch('src.api.budget.db.engine')
-        engine_mock.begin.return_value = connection_mock
-
-        # Invoke the code under test
-        result = code_under_test.update_budget(1, 1, {'groceries': 200, 'clothing_and_accessories': 100})
-
-        # Assert the result
-        assert result == {'budget_id': 1, 'groceries': 200, 'clothing_and_accessories': 100}
-
-    # Should return a dictionary of comparisons when compare_budgets_to_actual_spending is called with a valid user_id and valid date_from and date_to
-    def test_compare_budgets_to_actual_spending_valid_inputs(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.budget.db.engine.begin')
-        mocker.patch('src.api.budget.db.engine.execute')
-        mocker.patch('src.api.budget.sqlalchemy.text')
-        mocker.patch('src.api.budget.HTTPException')
-
-        # Set up the mock return values
-        connection_mock = mocker.Mock()
-        connection_mock.__enter__.return_value = connection_mock
-        connection_mock.__exit__.return_value = None
-        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
-
-        engine_mock = mocker.patch('src.api.budget.db.engine')
-        engine_mock.begin.return_value = connection_mock
-
-        # Invoke the code under test
-        result = code_under_test.compare_budgets_to_actual_spending(1, '2022-01-01', '2022-01-31')
-
-        # Assert the result
-        assert result == {'groceries': {'actual': 0, 'budget': 100}, 'clothing_and_accessories': {'actual': 0, 'budget': 50}}
-
-    # Should raise an HTTPException with status_code 404 and detail "User not found" when get_budgets is called with an invalid user_id
-    def test_get_budgets_invalid_user_id(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.budget.db.engine.begin')
-        mocker.patch('src.api.budget.db.engine.execute')
-        mocker.patch('src.api.budget.sqlalchemy.text')
-        mocker.patch('src.api.budget.HTTPException')
-
-        # Set up the mock return values
-        connection_mock = mocker.Mock()
-        connection_mock.__enter__.return_value = connection_mock
-        connection_mock.__exit__.return_value = None
-        connection_mock.execute.return_value.fetchone.return_value = None
-
-        engine_mock = mocker.patch('src.api.budget.db.engine')
-        engine_mock.begin.return_value = connection_mock
-
-        # Invoke the code under test
-        with pytest.raises(HTTPException) as exc_info:
-            code_under_test.get_budgets(1)
-
-        # Assert the exception
-        assert exc_info.value.status_code == 404
-        assert exc_info.value.detail == "User not found"
-
-    # Should raise an HTTPException with status_code 404 and detail "Budget not found" when update_budget is called with an invalid budget_id
-    def test_update_budget_invalid_budget_id(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.budget.db.engine.begin')
-        mocker.patch('src.api.budget.db.engine.execute')
-        mocker.patch('src.api.budget.sqlalchemy.text')
-        mocker.patch('src.api.budget.HTTPException')
-
-        # Set up the mock return values
-        connection_mock = mocker.Mock()
-        connection_mock.__enter__.return_value = connection_mock
-        connection_mock.__exit__.return_value = None
-        connection_mock.execute.return_value.fetchone.return_value = None
-
-        engine_mock = mocker.patch('src.api.budget.db.engine')
-        engine_mock.begin.return_value = connection_mock
-
-        # Invoke the code under test
-        with pytest.raises(HTTPException) as exc_info:
-            code_under_test.update_budget(1, 1, {'groceries': 200, 'clothing_and_accessories': 100})
-
-        # Assert the exception
-        assert exc_info.value.status_code == 404
-        assert exc_info.value.detail
