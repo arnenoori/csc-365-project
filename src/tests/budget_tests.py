@@ -355,3 +355,257 @@ class TestNewBudget:
         assert budget.office_supplies == 1400
         assert budget.financial_services == 1500
         assert budget.other == -1600
+
+class TestIsValidDate:
+
+    # The function returns True when given a valid date string in the format '%Y-%m-%d'.
+    def test_valid_date_format(self):
+        assert is_valid_date('2022-01-01') == True
+        assert is_valid_date('2022-12-31') == True
+        assert is_valid_date('2022-02-29') == True
+
+    # The function returns False when given an empty string.
+    def test_empty_string(self):
+        assert is_valid_date('') == False
+
+    # The function returns False when given a string with only whitespace characters.
+    def test_whitespace_string(self):
+        assert is_valid_date('   ') == False
+
+
+class TestCodeUnderTest:
+
+    # is_first_day_of_month returns True for valid first day of month date string
+    def test_is_first_day_of_month_valid_first_day(self):
+        date = "2022-01-01"
+        assert code_under_test.is_first_day_of_month(date) is True
+
+    # is_first_day_of_month returns False for valid non-first day of month date string
+    def test_is_first_day_of_month_valid_non_first_day(self):
+        date = "2022-01-15"
+        assert code_under_test.is_first_day_of_month(date) is False
+
+    # is_first_day_of_month returns False for invalid date string
+    def test_is_first_day_of_month_invalid_date(self):
+        date = "2022-13-01"
+        assert code_under_test.is_first_day_of_month(date) is False
+
+    # is_last_day_of_month returns False for invalid date string
+    def test_is_last_day_of_month_invalid_date(self):
+        date = "2022-13-01"
+        assert code_under_test.is_last_day_of_month(date) is False
+
+
+class TestCreateBudget:
+
+    # create a budget for a user with valid input
+    def test_valid_input(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Create a mock budget object
+        budget = NewBudget(
+            groceries=100,
+            clothing_and_accessories=50,
+            electronics=0,
+            home_and_garden=75,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=0,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function
+        result = create_budget(1, budget)
+
+        # Assert the expected result
+        assert result == {"budget_id": 1}
+
+    # create a budget for a user with all categories set to 0
+    def test_all_categories_zero(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Create a mock budget object with all categories set to 0
+        budget = NewBudget(
+            groceries=0,
+            clothing_and_accessories=0,
+            electronics=0,
+            home_and_garden=0,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=0,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function
+        result = create_budget(1, budget)
+
+        # Assert the expected result
+        assert result == {"budget_id": 1}
+
+    # create a budget for a user with some categories set to 0
+    def test_some_categories_zero(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Create a mock budget object with some categories set to 0
+        budget = NewBudget(
+            groceries=100,
+            clothing_and_accessories=50,
+            electronics=0,
+            home_and_garden=75,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=50,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function
+        result = create_budget(1, budget)
+
+        # Assert the expected result
+        assert result == {"budget_id": 1}
+
+    # create a budget for a non-existent user
+    def test_nonexistent_user(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Set the check_user_query mock to return None
+        check_user_query_mock = mocker.patch('src.api.auth.check_user_query')
+        check_user_query_mock.return_value = None
+
+        # Create a mock budget object
+        budget = NewBudget(
+            groceries=100,
+            clothing_and_accessories=50,
+            electronics=0,
+            home_and_garden=75,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=50,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function and expect an HTTPException
+        with pytest.raises(HTTPException) as exc:
+            create_budget(1, budget)
+
+        # Assert the expected status code and detail message of the HTTPException
+        assert exc.value.status_code == 404
+        assert exc.value.detail == "User not found"
+
+    # create a budget for a user who already has a budget
+    def test_user_already_has_budget(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Set the execute mock to return a non-None result
+        execute_mock = mocker.patch('src.database.engine.execute')
+        execute_mock.return_value.fetchone.return_value = (1,)
+
+        # Create a mock budget object
+        budget = NewBudget(
+            groceries=100,
+            clothing_and_accessories=50,
+            electronics=0,
+            home_and_garden=75,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=50,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function and expect an HTTPException
+        with pytest.raises(HTTPException) as exc:
+            create_budget(1, budget)
+
+        # Assert the expected status code and detail message of the HTTPException
+        assert exc.value.status_code == 400
+        assert exc.value.detail == "User already has a budget"
+
+    # create a budget for a user with invalid input
+    def test_invalid_input(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.auth.check_user_query')
+        mocker.patch('src.database.engine.begin')
+        mocker.patch('src.database.engine.execute')
+
+        # Create a mock budget object with invalid input (negative amount)
+        budget = NewBudget(
+            groceries=-100,
+            clothing_and_accessories=50,
+            electronics=0,
+            home_and_garden=75,
+            health_and_beauty=0,
+            entertainment=0,
+            travel=0,
+            automotive=0,
+            services=0,
+            gifts_and_special_occasions=0,
+            education=0,
+            fitness_and_sports=50,
+            pets=0,
+            office_supplies=0,
+            financial_services=0,
+            other=0
+        )
+
+        # Invoke the create_budget function and expect an HTTPException
+        with pytest.raises(HTTPException) as exc:
+            create_budget(1, budget)
+
+        # Assert the expected status code and detail message of the HTTPException
+        assert exc.value.status_code == 400
+        assert exc.value.detail == "Invalid budget"
