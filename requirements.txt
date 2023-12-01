@@ -12,3 +12,4 @@ pytest-mock
 pytest-cov
 httpx
 ruff
+pytest-asyncio
