@@ -1,6 +1,6 @@
 import pytest
 from http.client import HTTPException
-from src.api.budget import NewPurchase, create_purchase
+from src.api.purchases import NewPurchase, create_purchase
 
 
 class TestNewPurchase:
