@@ -8,3 +8,7 @@ pre-commit
 boto3
 requests
 python-multipart
+pytest-mock
+pytest-cov
+httpx
+ruff
