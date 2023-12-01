@@ -1,6 +1,6 @@
 import pytest
 from http.client import HTTPException
-from src.api.budget import NewBudget, create_budget, update_budget
+from src.api.budget import NewBudget, create_budget, update_budget, is_valid_date, code_under_test
 
 class TestNewBudget:
 
@@ -360,17 +360,16 @@ class TestIsValidDate:
 
     # The function returns True when given a valid date string in the format '%Y-%m-%d'.
     def test_valid_date_format(self):
-        assert is_valid_date('2022-01-01') == True
-        assert is_valid_date('2022-12-31') == True
-        assert is_valid_date('2022-02-29') == True
-
+        assert is_valid_date('2022-01-01') is True
+        assert is_valid_date('2022-12-31') is True
+        assert is_valid_date('2022-02-29') is True
     # The function returns False when given an empty string.
     def test_empty_string(self):
-        assert is_valid_date('') == False
+        assert is_valid_date('') is False
 
     # The function returns False when given a string with only whitespace characters.
     def test_whitespace_string(self):
-        assert is_valid_date('   ') == False
+        assert is_valid_date('   ') is False
 
 
 class TestCodeUnderTest:
@@ -609,3 +608,125 @@ class TestCreateBudget:
         # Assert the expected status code and detail message of the HTTPException
         assert exc.value.status_code == 400
         assert exc.value.detail == "Invalid budget"
+
+
+class TestBudgers:
+
+    # Should return a dictionary of budgets when get_budgets is called with a valid user_id
+    def test_get_budgets_valid_user_id(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.budget.db.engine.begin')
+        mocker.patch('src.api.budget.db.engine.execute')
+        mocker.patch('src.api.budget.sqlalchemy.text')
+        mocker.patch('src.api.budget.HTTPException')
+
+        # Set up the mock return values
+        connection_mock = mocker.Mock()
+        connection_mock.__enter__.return_value = connection_mock
+        connection_mock.__exit__.return_value = None
+        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
+
+        engine_mock = mocker.patch('src.api.budget.db.engine')
+        engine_mock.begin.return_value = connection_mock
+
+        # Invoke the code under test
+        result = code_under_test.get_budgets(1)
+
+        # Assert the result
+        assert result == {'groceries': 100, 'clothing_and_accessories': 50}
+
+    # Should update the budget and return a dictionary of the updated budget when update_budget is called with valid user_id, budget_id and budget
+    def test_update_budget_valid_inputs(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.budget.db.engine.begin')
+        mocker.patch('src.api.budget.db.engine.execute')
+        mocker.patch('src.api.budget.sqlalchemy.text')
+        mocker.patch('src.api.budget.HTTPException')
+
+        # Set up the mock return values
+        connection_mock = mocker.Mock()
+        connection_mock.__enter__.return_value = connection_mock
+        connection_mock.__exit__.return_value = None
+        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
+
+        engine_mock = mocker.patch('src.api.budget.db.engine')
+        engine_mock.begin.return_value = connection_mock
+
+        # Invoke the code under test
+        result = code_under_test.update_budget(1, 1, {'groceries': 200, 'clothing_and_accessories': 100})
+
+        # Assert the result
+        assert result == {'budget_id': 1, 'groceries': 200, 'clothing_and_accessories': 100}
+
+    # Should return a dictionary of comparisons when compare_budgets_to_actual_spending is called with a valid user_id and valid date_from and date_to
+    def test_compare_budgets_to_actual_spending_valid_inputs(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.budget.db.engine.begin')
+        mocker.patch('src.api.budget.db.engine.execute')
+        mocker.patch('src.api.budget.sqlalchemy.text')
+        mocker.patch('src.api.budget.HTTPException')
+
+        # Set up the mock return values
+        connection_mock = mocker.Mock()
+        connection_mock.__enter__.return_value = connection_mock
+        connection_mock.__exit__.return_value = None
+        connection_mock.execute.return_value.fetchone.return_value = {'groceries': 100, 'clothing_and_accessories': 50}
+
+        engine_mock = mocker.patch('src.api.budget.db.engine')
+        engine_mock.begin.return_value = connection_mock
+
+        # Invoke the code under test
+        result = code_under_test.compare_budgets_to_actual_spending(1, '2022-01-01', '2022-01-31')
+
+        # Assert the result
+        assert result == {'groceries': {'actual': 0, 'budget': 100}, 'clothing_and_accessories': {'actual': 0, 'budget': 50}}
+
+    # Should raise an HTTPException with status_code 404 and detail "User not found" when get_budgets is called with an invalid user_id
+    def test_get_budgets_invalid_user_id(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.budget.db.engine.begin')
+        mocker.patch('src.api.budget.db.engine.execute')
+        mocker.patch('src.api.budget.sqlalchemy.text')
+        mocker.patch('src.api.budget.HTTPException')
+
+        # Set up the mock return values
+        connection_mock = mocker.Mock()
+        connection_mock.__enter__.return_value = connection_mock
+        connection_mock.__exit__.return_value = None
+        connection_mock.execute.return_value.fetchone.return_value = None
+
+        engine_mock = mocker.patch('src.api.budget.db.engine')
+        engine_mock.begin.return_value = connection_mock
+
+        # Invoke the code under test
+        with pytest.raises(HTTPException) as exc_info:
+            code_under_test.get_budgets(1)
+
+        # Assert the exception
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail == "User not found"
+
+    # Should raise an HTTPException with status_code 404 and detail "Budget not found" when update_budget is called with an invalid budget_id
+    def test_update_budget_invalid_budget_id(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('src.api.budget.db.engine.begin')
+        mocker.patch('src.api.budget.db.engine.execute')
+        mocker.patch('src.api.budget.sqlalchemy.text')
+        mocker.patch('src.api.budget.HTTPException')
+
+        # Set up the mock return values
+        connection_mock = mocker.Mock()
+        connection_mock.__enter__.return_value = connection_mock
+        connection_mock.__exit__.return_value = None
+        connection_mock.execute.return_value.fetchone.return_value = None
+
+        engine_mock = mocker.patch('src.api.budget.db.engine')
+        engine_mock.begin.return_value = connection_mock
+
+        # Invoke the code under test
+        with pytest.raises(HTTPException) as exc_info:
+            code_under_test.update_budget(1, 1, {'groceries': 200, 'clothing_and_accessories': 100})
+
+        # Assert the exception
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail
