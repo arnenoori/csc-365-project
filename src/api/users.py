@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
 from src import database as db
-from sqlalchemy.exc import DBAPIError, NoResultFound
+from sqlalchemy.exc import DBAPIError
 import re
 from datetime import datetime, timedelta
 

@@ -1,5 +1,4 @@
 import pytest
-from ctypes import create_string_buffer
 from http.client import HTTPException
 from src.api.users import NewUser, create_user, update_user
 
@@ -30,7 +29,7 @@ class TestNewUser:
         # Check if user exists in the database
 
     # Updating an existing user with valid name and email should return a dictionary with name and email keys
-    def test_update_user_valid_name_and_email(self):
+    def test_update_user_valid_name_and_email1(self):
         # Arrange
         user_id = 1
         new_user = NewUser(name="John Doe", email="johndoe@example.com")
@@ -91,7 +90,7 @@ class TestNewUser:
         assert "email" in result.keys()
 
     # Updating an existing user with valid name and email should update the user in the database
-    def test_update_user_valid_name_and_email(self):
+    def test_update_user_valid_name_and_email2(self):
         # Arrange
         user_id = 1
         new_user = NewUser(name="John Doe", email="johndoe@example.com")

@@ -35,7 +35,8 @@ def is_valid_date(date_string, format='%Y-%m-%d'):
     try:
         datetime.strptime(date_string, format)
         year, month, day = date_string.split('-')
-        if len(year) != 4 or len(month) != 2 or len(day) != 2: return False
+        if len(year) != 4 or len(month) != 2 or len(day) != 2: 
+            return False
         return True
     except ValueError:
         return False

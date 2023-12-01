@@ -1,11 +1,10 @@
 # pip install pytest-mock
-import pytest
 import src
 
 class TestUploadReceipt:
 
     # Successfully upload a receipt image and process it into a transaction and purchases
-    def test_successfully_upload_receipt(self, mocker):
+    def test_successfully_upload_receipt1(self, mocker):
         # Mock the necessary dependencies
         mocker.patch('src.api.receipt_processing.base64.b64encode', return_value='base64_image')
         mocker.patch('src.api.receipt_processing.requests.post', return_value=mocker.Mock(text='{"store_name": "Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'))
@@ -296,7 +295,7 @@ class TestUploadReceipt:
         src.api.receipt_processing.create_purchase.assert_not_called()
 
     # Handle a receipt image with multiple pages
-    def test_successfully_upload_receipt(self, mocker):
+    def test_successfully_upload_receipt2(self, mocker):
         # Mock the necessary dependencies
         mocker.patch('src.api.receipt_processing.base64.b64encode', return_value='base64_image')
         mocker.patch('src.api.receipt_processing.requests.post', return_value=mocker.Mock(text='{"store_name": "Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'))
@@ -340,7 +339,7 @@ class TestUploadReceipt:
         src.api.receipt_processing.create_purchase.assert_called_once_with(1, 1, 'Item 2', 20, 2)
 
     # Handle a receipt image with a tax
-    def test_successfully_upload_receipt(self, mocker):
+    def test_successfully_upload_receipt3(self, mocker):
         mocker.patch('src.api.receipt_processing.base64.b64encode', return_value='base64_image')
         mocker.patch('src.api.receipt_processing.requests.post', return_value=mocker.Mock(text='{"store_name": "Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'))
         mocker.patch('src.api.receipt_processing.create_transaction', return_value=1)

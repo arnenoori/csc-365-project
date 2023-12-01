@@ -6,7 +6,7 @@ from src.api.budget import NewPurchase, create_purchase
 class TestNewPurchase:
 
     # Creating a new purchase with valid inputs should be successful.
-    def test_create_purchase_with_valid_inputs(self):
+    def test_create_purchase_with_valid_inputs1(self):
         purchase = NewPurchase(
             item="Item",
             price=10,
@@ -84,7 +84,7 @@ class TestNewPurchase:
             create_purchase(1, 1, purchase)
 
     # Creating a new purchase with the same minimum and maximum valid inputs should be successful.
-    def test_create_purchase_with_valid_inputs(self):
+    def test_create_purchase_with_valid_inputs2(self):
         purchase = NewPurchase(
             item="Item",
             price=10,

@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File
 import base64
 import requests
 import json
 import os
-from src.api import auth
 from src.api.transactions import create_transaction
 from src.api.purchases import create_purchase
 

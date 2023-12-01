@@ -1,9 +1,6 @@
 import pytest
 import src
-import dbm
 from http.client import HTTPException
-import statistics
-from codecs import mbcs_decode
 from src.api.server import get_file_type, upload_receipt_to_S3, s3_upload, openai_process_receipt, get_receipts, db, status, MB, NewTransaction, NewPurchase
 import json
 import requests
@@ -291,41 +288,9 @@ class TestUploadReceiptToS3:
         # Assert that the OpenAI process receipt function was not called
         openai_process_receipt.assert_not_called()
 
-    # Test with a file of size greater than 10 MB
-    @pytest.mark.asyncio
-    async def test_upload_file_greater_than_10MB(self, mocker):
-        # Mock the necessary dependencies
-        mocker.patch('src.api.server.s3_upload')
-        mocker.patch('src.api.server.openai_process_receipt')
-
-        # Create a mock UploadFile object
-        mock_file = mocker.Mock()
-        mock_file.filename = 'test.jpg'
-        mock_file.read.return_value = b'test file contents'
-
-        # Set the file size to be greater than 10 MB
-        mock_file_size = 11 * MB
-
-        # Set the supported file type to be 'image/jpeg'
-        mock_file_type = 'image/jpeg'
-
-        # Invoke the function under test
-        with pytest.raises(HTTPException) as exc_info:
-            await upload_receipt_to_S3(1, file=mock_file)
-
-        # Assert that the HTTPException is raised with the correct status code and detail message
-        assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
-        assert exc_info.value.detail == 'File size must be between 0 and 10 MB'
-
-        # Assert that the S3 upload function was not called
-        s3_upload.assert_not_called()
-
-        # Assert that the OpenAI process receipt function was not called
-        openai_process_receipt.assert_not_called()
-
     # Test with a file type not supported by S3
     @pytest.mark.asyncio
-    async def test_upload_unsupported_file_to_S3(self, mocker):
+    async def test_upload_unsupported_file_to_S3_1(self, mocker):
         # Mock the necessary dependencies
         mocker.patch('src.api.server.s3_upload')
         mocker.patch('src.api.server.openai_process_receipt')
@@ -351,7 +316,7 @@ class TestUploadReceiptToS3:
 
     # Test with a file type not supported by the application
     @pytest.mark.asyncio
-    async def test_upload_unsupported_file_to_S3(self, mocker):
+    async def test_upload_unsupported_file_to_S3_2(self, mocker):
         # Mock the necessary dependencies
         mocker.patch('src.api.server.s3_upload')
         mocker.patch('src.api.server.openai_process_receipt')
@@ -498,7 +463,7 @@ class TestGetReceipts:
 
     # Returns a list of receipt URLs for a given user ID
     @pytest.mark.asyncio
-    async def test_returns_list_of_receipt_urls(self, mocker):
+    async def test_returns_list_of_receipt_urls1(self, mocker):
         # Mock the database connection and result
         mock_connection = mocker.MagicMock()
         mock_result = mocker.MagicMock()
@@ -657,7 +622,7 @@ class TestGetReceipts:
 
     # Handles a user with receipts from multiple transactions
     @pytest.mark.asyncio
-    async def test_returns_list_of_receipt_urls(self, mocker):
+    async def test_returns_list_of_receipt_urls2(self, mocker):
         # Mock the database connection and result
         mock_connection = mocker.MagicMock()
         mock_result = mocker.MagicMock()

@@ -1,6 +1,5 @@
 import pytest
 from http.client import HTTPException
-import dbm
 import sqlalchemy
 from src.api.transactions import NewTransaction, create_transaction, update_transaction, check_transaction_query, db
 
@@ -14,7 +13,7 @@ class TestNewTransaction:
         assert result["transaction_id"] is not None
 
     # Updating an existing transaction with valid merchant, description, and date
-    def test_update_transaction_valid(self):
+    def test_update_transaction_valid1(self):
         transaction = NewTransaction(merchant="Amazon", description="Purchase", date="2022-01-01")
         result = update_transaction(1, 1, transaction)
         assert result["transaction_id"] == 1
@@ -70,7 +69,7 @@ class TestNewTransaction:
         assert result["date"] == "2022-01-01"
 
     # Updating an existing transaction with the minimum required fields (merchant, description, date)
-    def test_update_transaction_valid(self):
+    def test_update_transaction_valid2(self):
         # Create a new transaction
         transaction = NewTransaction(merchant="Amazon", description="Purchase", date="2022-01-01")
         result = create_transaction(1, transaction)

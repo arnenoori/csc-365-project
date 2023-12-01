@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, exceptions, File, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import transactions, admin, auth, users, purchases, budget
+from src.api import transactions, admin, users, purchases, budget
 from src import database as db
 import sqlalchemy
 from sqlalchemy.exc import DBAPIError
@@ -12,12 +12,10 @@ import requests
 import os
 import time
 from starlette.middleware.cors import CORSMiddleware
-import base64
 from src.api.transactions import create_transaction
 from src.api.purchases import create_purchase
 from src.api.transactions import NewTransaction
 from src.api.purchases import NewPurchase
-import sys
 
 description = """
 Receipt App

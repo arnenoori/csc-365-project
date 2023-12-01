@@ -5,7 +5,7 @@ from src.api.budget import NewBudget, create_budget, update_budget
 class TestNewBudget:
 
     # Creating a new budget with valid integer values for all categories.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories1(self):
         budget = NewBudget(groceries=100, clothing_and_accessories=200, electronics=300, home_and_garden=400, health_and_beauty=500, 
                            entertainment=600, travel=700, automotive=800, services=900, gifts_and_special_occasions=1000, 
                            education=1100, fitness_and_sports=1200, pets=1300, office_supplies=1400, financial_services=1500, 
@@ -125,7 +125,7 @@ class TestNewBudget:
         assert budget.other == 0
 
     # Creating a new budget with valid integer values for some categories and the minimum allowed integer value for others.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories2(self):
         budget = NewBudget(groceries=100, clothing_and_accessories=200, electronics=300, home_and_garden=400, health_and_beauty=500, 
                            entertainment=600, travel=700, automotive=800, services=900, gifts_and_special_occasions=1000, 
                            education=1100, fitness_and_sports=1200, pets=1300, office_supplies=1400, financial_services=1500, 
@@ -149,7 +149,7 @@ class TestNewBudget:
         assert budget.other == 1600
 
     # Creating a new budget with valid integer values for some categories and the maximum allowed integer value for others.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories3(self):
         budget = NewBudget(groceries=100, clothing_and_accessories=200, electronics=300, home_and_garden=400, health_and_beauty=500, 
                            entertainment=600, travel=700, automotive=800, services=900, gifts_and_special_occasions=1000, 
                            education=1100, fitness_and_sports=1200, pets=1300, office_supplies=1400, financial_services=1500, 
@@ -173,7 +173,7 @@ class TestNewBudget:
         assert budget.other == 1600
 
     # Updating an existing budget with valid integer values for all categories.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories4(self):
         budget = NewBudget(groceries=100, clothing_and_accessories=200, electronics=300, home_and_garden=400, health_and_beauty=500, 
                            entertainment=600, travel=700, automotive=800, services=900, gifts_and_special_occasions=1000, 
                            education=1100, fitness_and_sports=1200, pets=1300, office_supplies=1400, financial_services=1500, 
@@ -224,7 +224,7 @@ class TestNewBudget:
         assert result["other"] is None
 
     # Updating an existing budget with valid integer values for some categories and the maximum allowed integer value for others.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories5(self):
         budget = NewBudget(groceries=100, clothing_and_accessories=200, electronics=300, home_and_garden=400, health_and_beauty=500, 
                            entertainment=600, travel=700, automotive=800, services=900, gifts_and_special_occasions=1000, 
                            education=1100, fitness_and_sports=1200, pets=1300, office_supplies=1400, financial_services=1500, 
@@ -296,7 +296,7 @@ class TestNewBudget:
         assert budget.other == 0
 
     # Creating a new budget with the maximum allowed integer value for all categories.
-    def test_valid_integer_values_for_all_categories(self):
+    def test_valid_integer_values_for_all_categories6(self):
         budget = NewBudget(groceries=2147483647, clothing_and_accessories=2147483647, electronics=2147483647, home_and_garden=2147483647, health_and_beauty=2147483647, 
                            entertainment=2147483647, travel=2147483647, automotive=2147483647, services=2147483647, gifts_and_special_occasions=2147483647, 
                            education=2147483647, fitness_and_sports=2147483647, pets=2147483647, office_supplies=2147483647, financial_services=2147483647, 
