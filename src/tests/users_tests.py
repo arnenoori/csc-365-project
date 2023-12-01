@@ -1,7 +1,7 @@
 import pytest
 from ctypes import create_string_buffer
 from http.client import HTTPException
-from ..api.users import NewUser, create_user, update_user
+from src.api.users import NewUser, create_user, update_user
 
 
 class TestNewUser:

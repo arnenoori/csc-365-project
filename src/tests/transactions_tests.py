@@ -2,7 +2,7 @@ import pytest
 from http.client import HTTPException
 import dbm
 import sqlalchemy
-from ..api.transactions import NewTransaction, create_transaction, update_transaction, check_transaction_query, db
+from src.api.transactions import NewTransaction, create_transaction, update_transaction, check_transaction_query, db
 
 
 class TestNewTransaction:

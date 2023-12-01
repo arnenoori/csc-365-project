@@ -1,6 +1,6 @@
 import pytest
 from http.client import HTTPException
-from ..api.budget import NewBudget, create_budget, update_budget
+from src.api.budget import NewBudget, create_budget, update_budget
 
 class TestNewBudget:
 

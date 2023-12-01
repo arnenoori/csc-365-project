@@ -1,1 +1,4 @@
 .env
+.env.local
+.coverage
+__pycache__/

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+import openai
 from src.api import auth
 from src import database as db
 import sqlalchemy
@@ -9,6 +10,17 @@ router = APIRouter(
     tags=["query"],
     dependencies=[Depends(auth.get_api_key)],
 )
+
+openai.api_key = 'your-api-key'
+
+response = openai.ChatCompletion.create(
+  model="gpt-3.5-turbo",
+  messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+    ]
+)
+
+print(response['choices'][0]['message']['content'])
 
 def parse_query(user_query: str):
     """
