@@ -7,7 +7,7 @@ Arne Noori - agnoori@calpoly.edu \
 Sebastian Thau - sthau@calpoly.edu 
 
 **Project Description:** \
-Our project idea is to create a budget tracking app that assists users with tracking and managing their finances. Users can manually enter purchases as well as photos of receipts in order to store and track their purchases. These receipt images will be converted into text and stored in the database. We also plan to integrate Chat GPT in order to provide users the ability to search for past purchases and receive budget recommendations. Users will also be able to update financial goals and receive recommendations for managing their budget in the future.
+Our project idea is to create a budget tracking app that assists users with tracking and managing their finances. Users can manually enter purchases as well as photos of receipts in order to store and track their purchases. These receipt images will be converted into text and stored in the database. Users will also be able to update financial goals and receive recommendations for managing their budget in the future.
 
 **Database Diagram:**
 ![](Database Architecture Diagram.png)
@@ -25,11 +25,6 @@ Financial Goals: Holds the financial goals set by the user along with their prog
 Budget Recommendations: Stores custom budget advice for each user based on their spending habits.
 
 
-Export Data: Stores the exported data in various formats. Enables quick retrieval for downloading.
-
-Vector Databases
-Semantic Search: Used for enabling natural language queries in the Chat GPT Integration feature. The Vector DB will hold the semantic embeddings of text for quick and accurate search results.
-
 **Core Features**
 1. User Authentication
 * Sign Up: Users can register using an email and password.
@@ -39,10 +34,9 @@ Semantic Search: Used for enabling natural language queries in the Chat GPT Inte
 * Graphs: Show graphs for monthly spending, category-wise spending, etc.
 3. Manual Entry of Purchases
 * Form Fields: Users can manually enter details like item name, price, category, store name, and date.
-* Bulk Import: Allow the import of multiple entries via a CSV file.
 4. Receipt Scanning
 * Image Upload: Users can upload images of receipts or scan directly from within the app
-* OCR (Optical Character Recognition): Extract text from the uploaded image.
+* OCR (Optical Character Recognition): Extract text from the uploaded image using GPT Vision Model and Amazon S3 Bucket.
     * Data Parsing: Parse the extracted text to save the relevant details:
     * Store Name
     * Store's Address
@@ -50,18 +44,23 @@ Semantic Search: Used for enabling natural language queries in the Chat GPT Inte
     * Prices for each Item
     * Subtotal, Tax, and Total
     * Date of Purchase
+
+Export Data
+**Roadmap**
+
+Vector Databases
+Semantic Search: Used for enabling natural language queries in the Chat GPT Integration feature. The Vector DB will hold the semantic embeddings of text for quick and accurate search results.
+
+* Users can export their financial data in various formats like PDF, CSV, etc.
 7. Search and Edit
 * Semantic Search: Users can search their past purchases using natural language queries.
 * Edit/Delete: Users can edit or delete entries, useful in cases like item returns.
 8. Chat GPT Integration
 * Query Handling: Users can ask the chatbot to find specific transactions, provide summaries, or offer budget advice.
 
-Export Data
-* Users can export their financial data in various formats like PDF, CSV, etc.
-
-**Roadmap**
+* Bulk Import: Allow the import of multiple entries via a CSV file.
 
 API integration to extract your data
 Create an invoice
-Split the bill with someone
-Twilio integration (after API integration) 
+Split the bill with someone and share that
+Twilio integration (after API integration)
