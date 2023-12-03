@@ -5,6 +5,7 @@ import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError, NoResultFound
 import re
+import time
 
 router = APIRouter(
     prefix="/user",
@@ -31,6 +32,8 @@ check_user_query = "SELECT id FROM users WHERE id = :user_id"
 @router.post("/", tags=["user"])
 def create_user(new_user: NewUser):
     """ """
+    start_time = time.time()
+    
     name = new_user.name
     email = new_user.email
     user_id = None
@@ -70,6 +73,9 @@ def create_user(new_user: NewUser):
     except Exception as error:
         print(f"Internal Server Error returned: <<<{error}>>>")
 
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     return {"user_id": user_id}
 
 
@@ -78,6 +84,8 @@ def create_user(new_user: NewUser):
 @router.get("/{user_id}", tags=["user"])
 def get_user(user_id: int):
     """ """
+    start_time = time.time()
+
     try:
         with db.engine.begin() as connection:
             # ans stores query result as dictionary/json
@@ -96,6 +104,9 @@ def get_user(user_id: int):
 
     print(f"USER_{user_id}: {ans.name}, {ans.email}")
 
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     # ex: {"name": "John Doe", "email": "jdoe@gmail"}
     return {"name": ans.name, "email": ans.email}
 
@@ -103,6 +114,8 @@ def get_user(user_id: int):
 @router.delete("/{user_id}", tags=["user"])
 def delete_user(user_id: int):
     """ """
+    start_time = time.time()
+
     try:
         with db.engine.begin() as connection:
             # check if user exists
@@ -123,12 +136,17 @@ def delete_user(user_id: int):
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     return "OK"
 
 # updates a user's name and email
 @router.put("/{user_id}", tags=["user"])
 def update_user(user_id: int, new_user: NewUser):
     """ """
+    start_time = time.time()
+    
     name = new_user.name
     email = new_user.email
 
@@ -170,5 +188,8 @@ def update_user(user_id: int, new_user: NewUser):
                 ), [{"name": name, "email": email, "user_id": user_id}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     return {"name": name, "email": email}

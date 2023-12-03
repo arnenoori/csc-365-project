@@ -7,6 +7,7 @@ from sqlalchemy.exc import DBAPIError, NoResultFound
 from datetime import datetime
 from fastapi import HTTPException
 import sys
+import time
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions/{transaction_id}/purchases",
@@ -39,6 +40,7 @@ check_purchase_query = "SELECT transaction_id FROM purchases WHERE id = :purchas
 @router.get("/", tags=["purchase"])
 def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc", item: str = "%", category: str = "%", price_start: int = 0, price_end: int = sys.maxsize):
     """ """
+    start_time = time.time()
     ans = []
 
     # check if sort_by and sort_order is valid
@@ -119,6 +121,8 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, page
         print(f"Error returned: <<<{error}>>>")
 
     print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES: {ans}")
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     # ex: [{"item": "TV", "price": 500.00, "category": "Electronics", "warranty_date": "2022-05-01", "return_date": "2021-06-01"}, ...]
     return ans
@@ -129,6 +133,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, page
 @router.post("/", tags=["purchase"])
 def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     """ """
+    start_time = time.time()
     item = purchase.item
     price = float(purchase.price)
     quantity = purchase.quantity
@@ -181,6 +186,9 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     return {"purchase_id": purchase_id}
 
 
@@ -189,6 +197,7 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
 @router.delete("/{purchase_id}", tags=["purchase"])
 def delete_purchase(user_id: int, transaction_id: int, purchase_id: int):
     """ """
+    start_time = time.time()
     try:
         with db.engine.begin() as connection:
             # check if user exists
@@ -229,6 +238,9 @@ def delete_purchase(user_id: int, transaction_id: int, purchase_id: int):
                 ), [{"purchase_id": purchase_id}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+    
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     return "OK"
 
@@ -236,6 +248,7 @@ def delete_purchase(user_id: int, transaction_id: int, purchase_id: int):
 @router.put("/{purchase_id}", tags=["purchase"])
 def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchase: NewPurchase):
     """ """
+    start_time = time.time()
     item = purchase.item
     price = purchase.price
     category = purchase.category
@@ -296,6 +309,9 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
                 ), [{"purchase_id": purchase_id, "item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     return {"item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}
 
