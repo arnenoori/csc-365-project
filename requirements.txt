@@ -13,3 +13,5 @@ pytest-cov
 httpx
 ruff
 pytest-asyncio
+faker
+numpy
