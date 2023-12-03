@@ -74,7 +74,7 @@ create index tdate on transactions (date)
 ```
 
 - New explain analyze results:
-```json
+```sql
 QUERY PLAN                                                                                                                      |
 --------------------------------------------------------------------------------------------------------------------------------+
 Limit  (cost=1402.67..1402.67 rows=1 width=82) (actual time=26.191..26.192 rows=0 loops=1)                                      |
