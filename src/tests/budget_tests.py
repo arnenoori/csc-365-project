@@ -371,7 +371,29 @@ class TestIsValidDate:
     def test_whitespace_string(self):
         assert is_valid_date('   ') is False
 
+        # Returns False when input is False
+    def test_returns_false_when_input_is_false(self):
+        assert not code_under_test(False)
 
+    # Returns False when input is None
+    def test_returns_false_when_input_is_none(self):
+        assert not code_under_test(None)
+
+    # Returns False when input is an empty string
+    def test_returns_false_when_input_is_empty_string(self):
+        assert not code_under_test('')
+
+    # Returns True when input is a non-empty string
+    def test_returns_true_when_input_is_non_empty_string(self):
+        assert code_under_test('hello')
+
+    # Returns True when input is a non-empty list
+    def test_returns_true_when_input_is_non_empty_list(self):
+        assert code_under_test([1, 2, 3])
+
+    # Returns True when input is a non-empty dictionary
+    def test_returns_true_when_input_is_non_empty_dictionary(self):
+        assert code_under_test({'key': 'value'})
 
 
 class TestIsFirstDayOfMonth:
