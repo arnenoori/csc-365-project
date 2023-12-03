@@ -127,7 +127,7 @@ def get_purchases(user_id: int, transaction_id: int, purchase_id: int = -1, page
     print(f"time: {(end_time - start_time) * 1000}")
 
     # ex: [{"item": "TV", "price": 500.00, "category": "Electronics", "warranty_date": "2022-05-01", "return_date": "2021-06-01"}, ...]
-    return ans
+    return [{"time": (end_time - start_time) * 1000}] + ans
 
 
 
@@ -191,7 +191,7 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"purchase_id": purchase_id}
+    return {"time": (end_time - start_time) * 1000, "purchase_id": purchase_id}
 
 
 
@@ -243,7 +243,7 @@ def delete_purchase(user_id: int, transaction_id: int, purchase_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return "OK"
+    return {"time": (end_time - start_time) * 1000}
 
 # updates a specific purchase for a user
 @router.put("/{purchase_id}", tags=["purchase"])
@@ -312,4 +312,4 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
         print(f"Error returned: <<<{error}>>>")
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
-    return {"item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}
+    return {"time": (end_time - start_time) * 1000, "item": item, "price": price, "category": category, "warranty_date": warranty_date, "return_date": return_date, "quantity": quantity}

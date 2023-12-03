@@ -59,7 +59,7 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return ans
+    return [{"time": (end_time - start_time) * 1000}] + ans
 
 # creates a new transaction for a user
 @router.post("/", tags=["transactions"])
@@ -100,7 +100,7 @@ def create_transaction(user_id: int, transaction: NewTransaction):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"transaction_id": transaction_id}
+    return {"time": (end_time - start_time) * 1000, "transaction_id": transaction_id}
 
 # gets transactions for a user (all or specific transaction)
 @router.get("/", tags=["transactions"])
@@ -173,7 +173,7 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
     print(f"time: {(end_time - start_time) * 1000}")
 
     # returns [{"id": id, "merchant": merchant, "description": description, "date": date}, ...]
-    return ans
+    return [{"time": (end_time - start_time) * 1000}] + ans
 
 # deletes a specific transaction for a user
 @router.delete("/{transaction_id}", tags=["transactions"])
@@ -213,7 +213,7 @@ def delete_transaction(user_id: int, transaction_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return "OK"
+    return {"time": (end_time - start_time) * 1000}
 
 # updates a specific transaction for a user
 @router.put("/{transaction_id}", tags=["transactions"])
@@ -262,4 +262,4 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"transaction_id": transaction_id, "merchant": merchant, "description": description, "date": date}
+    return {"time": (end_time - start_time) * 1000, "transaction_id": transaction_id, "merchant": merchant, "description": description, "date": date}
