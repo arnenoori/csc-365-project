@@ -6,6 +6,7 @@ from src import database as db
 from sqlalchemy.exc import DBAPIError
 from fastapi import HTTPException
 from datetime import datetime, timedelta
+import time
 
 router = APIRouter(
     prefix="/user/{user_id}/budgets",
@@ -56,6 +57,7 @@ check_user_query = "SELECT id FROM users WHERE id = :user_id"
 @router.post("/", tags=["budgets"])
 def create_budget(user_id: int, budget: NewBudget):
     """ """
+    start_time = time.time()
     budget_id = None
 
     # check if budget is valid
@@ -114,13 +116,15 @@ def create_budget(user_id: int, budget: NewBudget):
                      "other": budget.other}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
-
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
     return {"budget_id": budget_id}
 
 # gets a user's monthly budgets
 @router.get("/", tags=["budgets"])
 def get_budgets(user_id: int):
     """ """
+    start_time = time.time()
     try:
         with db.engine.begin() as connection:
             # check if user exists
@@ -145,13 +149,15 @@ def get_budgets(user_id: int):
                 raise HTTPException(status_code=404, detail="Budget not found")
     except DBAPIError as error:
         print(f"DBAPIError returned: <<<{error}>>>")
-
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
     return dict(ans._mapping)
 
 # updates a user's monthly budgets
 @router.put("/{budget_id}", tags=["budgets"])
 def update_budget(user_id: int, budget_id: int, budget: NewBudget):
     """ """
+    start_time = time.time()
     # check if budget is valid
     for category, amt in vars(budget).items():
         print(f"category: {category}, amt: {amt}")
@@ -197,7 +203,8 @@ def update_budget(user_id: int, budget_id: int, budget: NewBudget):
                      "other": budget.other}])
     except DBAPIError as error:
         print(f"DBAPIError returned: <<{error}>>>")
-    
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")    
     return {"budget_id": budget_id, "groceries": budget.groceries, "clothing_and_accessories": budget.clothing_and_accessories, 
             "electronics": budget.electronics, "home_and_garden": budget.home_and_garden, "health_and_beauty": budget.health_and_beauty, 
             "entertainment": budget.entertainment, "travel": budget.travel, "automotive": budget.automotive, "services": budget.services, 
@@ -209,6 +216,7 @@ def update_budget(user_id: int, budget_id: int, budget: NewBudget):
 @router.get("/compare", tags=["budgets"])
 def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date_to: str = None):
     """ """
+    start_time = time.time()
     try:
         with db.engine.begin() as connection:
             # check if date_from and date_to are valid
@@ -290,7 +298,8 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             comparisons[category] = {"actual": actual_spending_dict[category], "budget": budgets_dict[category]}
         else:
             comparisons[category] = {"actual": 0, "budget": budgets_dict[category]}
-    
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")    
     # in form of {category: {actual: amt, budget: amt}, ...}
     return comparisons
 
@@ -298,6 +307,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
 @router.get("/categories", tags=["budgets"])
 def get_all_purchases_categorized(user_id: int):
     """ """
+    start_time = time.time()
     ans = []
 
     try: 
@@ -318,5 +328,6 @@ def get_all_purchases_categorized(user_id: int):
         print(f"Error returned: <<<{error}>>>")
 
     print(f"USER_{user_id}_PURCHASES_CATAGORIZED: {ans}")
-
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
     return ans

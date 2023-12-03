@@ -5,6 +5,7 @@ import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
 from datetime import datetime
+import time
 
 router = APIRouter(
     prefix="/user/{user_id}/transactions",
@@ -34,6 +35,7 @@ check_user_query = "SELECT id FROM users WHERE id = :user_id"
 @router.get("/{transaction_id}/categories", tags=["transactions"])
 def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
     """ """
+    start_time = time.time()
     ans = []
 
     try: 
@@ -54,13 +56,17 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
 
     print(f"USER_{user_id}_TRANSACTION_{transaction_id}_PURCHASES_CATAGORIZED: {ans}")
 
-    # returns {"category": "total", ...}
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     return ans
 
 # creates a new transaction for a user
 @router.post("/", tags=["transactions"])
 def create_transaction(user_id: int, transaction: NewTransaction):
     """ """
+    start_time = time.time()
+
     merchant = transaction.merchant
     description = transaction.description
     date = transaction.date
@@ -90,6 +96,9 @@ def create_transaction(user_id: int, transaction: NewTransaction):
                 ), [{"user_id": user_id, "merchant": merchant, "description": description, "date": date}]).scalar_one()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+    
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     return {"transaction_id": transaction_id}
 
@@ -97,6 +106,8 @@ def create_transaction(user_id: int, transaction: NewTransaction):
 @router.get("/", tags=["transactions"])
 def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page_size: int = 10, sort_by: str = "date", sort_order: str = "asc", date_from: str = "1000-01-01", date_to: str = "9999-12-31", merchant: str = "%"):
     """ """
+    start_time = time.time()
+    
     # check if sort_by and sort_order is valid
     if sort_by not in ["date", "merchant"]:
         raise HTTPException(status_code=400, detail="Invalid sort_by")
@@ -158,6 +169,8 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
         print(f"Error returned: <<<{error}>>>")
 
     print(f"USER_{user_id}_TRANSACTIONS_PAGE_{page}: {ans}")
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     # returns [{"id": id, "merchant": merchant, "description": description, "date": date}, ...]
     return ans
@@ -166,6 +179,8 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
 @router.delete("/{transaction_id}", tags=["transactions"])
 def delete_transaction(user_id: int, transaction_id: int):
     """ """
+    start_time = time.time()
+
     try:
         with db.engine.begin() as connection:
             # check if user exists
@@ -195,12 +210,17 @@ def delete_transaction(user_id: int, transaction_id: int):
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
     return "OK"
 
 # updates a specific transaction for a user
 @router.put("/{transaction_id}", tags=["transactions"])
 def update_transaction(user_id: int, transaction_id: int, transaction: NewTransaction):
     """ """
+    start_time = time.time()
+
     merchant = transaction.merchant
     description = transaction.description
     date = transaction.date
@@ -238,5 +258,8 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
                 ), [{"transaction_id": transaction_id, "user_id": user_id, "merchant": merchant, "description": description, "date": date}])
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
+
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
 
     return {"transaction_id": transaction_id, "merchant": merchant, "description": description, "date": date}
