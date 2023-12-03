@@ -29,7 +29,7 @@ This simulated data is in line with how we predict the data in our application w
 9. `DELETE` - Delete User - **616ms**
 10. `GET` - Get all Purchases Categorized - **139ms**
 11. `GET` - Get all Purchases Warranty - **612ms**
-12. `GET` - Get Purchases - **744ms**
+12. `GET` - Get Purchases - **1304ms**
 13. `POST` - Create Purchase - **55ms**
 14. `PUT` - Update Purchase - **56ms**
 15. `DELETE` - Delete Purchase - **4ms**
