@@ -5,12 +5,12 @@
 Link to python file used to construct the million rows of data: 
 
 ### Tables
-Users - 60,000 rows
-Purchases - 376,349 rows
-Budgets - 60,000 rows
-Transactions - 150,087 rows
+Users - **8,000 rows**
+Purchases - **962,891 rows**
+Budgets - **8,000 rows**
+Transactions - **46,432 rows**
 
-This code generates 1,039,209 rows in total
+This code generates **1,025,323 rows** in total
 
 This simulated data is in line with how we predict the data in our application would scale in a real world scenario. We simulated with 8,000 users. Each user has 5-10 transactions and each transaction has 5-30 purchases. Additionally, each user has 1 budget. A transaction is defined as a shopping event while a purchase is an an individual purchase during this shopping event. 
 
@@ -18,68 +18,41 @@ This simulated data is in line with how we predict the data in our application w
 
 ### Execution time of each endpoint
 
-1. GET - Get Purchase Categorized by Transaction - 62ms
-2. GET - Get Transactions - 94ms
-3. POST - Create Transaction - 11ms
-4. PUT - Update Transaction - 13ms
-5. DELETE - Delete Transaction - 66ms
-6. POST - Create User - 53ms
-7. GET - Get User - 2ms
-8. PUT - Update User - 15ms
-9. DELETE - Delete User - 616ms
-10. GET - Get all Purchases Categorized - 139ms
-11. GET - Get all Purchases Warranty - 612ms
-12. GET - Get Purchases - 744ms
-13. POST - Create Purchase - 55ms
-14. PUT - Update Purchase - 56ms
-15. DELETE - Delete Purchase - 4ms
-16. GET - Get Budgets - 6ms
-17. POST - Create Budget - 50ms
-18. PUT - Update Budget - 10ms
-19. GET - Compare Budgets to Actual Spending - 65ms
-20. GET - Get All Purchases Categorized - 78ms
+1. `GET` - Get Purchase Categorized by Transaction - **62ms**
+2. `GET` - Get Transactions - **94ms**
+3. `POST` - Create Transaction - **11ms**
+4. `PUT` - Update Transaction - **13ms**
+5. `DELETE` - Delete Transaction - **66ms**
+6. `POST` - Create User - **53ms**
+7. `GET` - Get User - **2ms**
+8. `PUT` - Update User - **15ms**
+9. `DELETE` - Delete User - **616ms**
+10. `GET` - Get all Purchases Categorized - **139ms**
+11. `GET` - Get all Purchases Warranty - **612ms**
+12. `GET` - Get Purchases - **744ms**
+13. `POST` - Create Purchase - **55ms**
+14. `PUT` - Update Purchase - **56ms**
+15. `DELETE` - Delete Purchase - **4ms**
+16. `GET` - Get Budgets - **6ms**
+17. `POST` - Create Budget - **50ms**
+18. `PUT` - Update Budget - **10ms**
+19. `GET` - Compare Budgets to Actual Spending - **65ms**
+20. `GET` - Get All Purchases Categorized - **78ms**
 
 ### Three slowest endpoints
 
-2. GET - Get Transactions - 94ms
-11. GET - Get all Purchases Warranty - 612ms
-12. GET - Get Purchases - 744ms
+2. `GET` - Get Transactions - **94ms**
+11. `GET` - Get all Purchases Warranty - **612ms**
+12. `GET` - Get Purchases - **744ms**
 
-We are skipping 'GET - Get All Purchases Categorized' since this GET call already goes through every purchase. It cannot be optimized. Also, we are disregarding the DELETE since this delete call already finds users by their IDs which is already an index.
+We are skipping '`GET` - Get All Purchases Categorized' since this `GET` call already goes through every purchase. It cannot be optimized. Also, we are disregarding the `DELETE` since this `DELETE` call finds users by their IDs which is already an index.
 
 ## Performance Tuning
 
 ### Slow Endpoint \#1 - GET - Get Transactions
 
-- results of running explain:
-```json
-QUERY PLAN                                                                                                                          |
-------------------------------------------------------------------------------------------------------------------------------------+
-Limit  (cost=2043.74..2043.76 rows=7 width=82) (actual time=91.704..91.707 rows=7 loops=1)                                          |
-  ->  Sort  (cost=2043.74..2043.76 rows=7 width=82) (actual time=91.702..91.703 rows=7 loops=1)                                     |
-        Sort Key: date                                                                                                              |
-        Sort Method: quicksort  Memory: 25kB                                                                                        |
-        ->  Seq Scan on transactions  (cost=0.00..2043.64 rows=7 width=82) (actual time=0.083..91.677 rows=7 loops=1)               |
-              Filter: ((date >= '1000-01-01'::text) AND (date <= '3000-12-12'::text) AND (merchant ~~* '%'::text) AND (user_id = 3))|
-              Rows Removed by Filter: 55916                                                                                         |
-Planning Time: 0.506 ms                                                                                                             |
-Execution Time: 91.738 ms                                                                                                           |
-```
-
-- describe what this explain means to you and what index you will add to speed up your query
-
-- We will use data index to speed this up
-
-- Command for adding the index:
-
-
-
-- New explain results
-
-- did this have the expected results
-
-- continue until acceptably fast
-
+- initial results of running explain analyze:
+```sql
 QUERY PLAN                                                                                                                         |
 -----------------------------------------------------------------------------------------------------------------------------------+
 Limit  (cost=2043.47..2043.48 rows=1 width=82) (actual time=64.437..64.438 rows=0 loops=1)                                         |
@@ -90,10 +63,18 @@ Limit  (cost=2043.47..2043.48 rows=1 width=82) (actual time=64.437..64.438 rows=
               Filter: ((date >= '2023-1-01'::text) AND (date <= '2023-12-12'::text) AND (merchant ~~* '%'::text) AND (user_id = 3))|
               Rows Removed by Filter: 55923                                                                                        |
 Planning Time: 0.554 ms                                                                                                            |
-Execution Time: 64.463 ms                                                                                                          |
+Execution Time: 64.463 ms                                                                                                           |
+```
 
+- This query plan indicates that the query performs a sequential scan on the transactions tabe, filtering records based on date, merchant, and user_id, followed by sorting on the date column. To speed up this query, we will add an index to the date column. 
+
+- Command for adding the index:
+```SQL
 create index tdate on transactions (date)
+```
 
+- New explain analyze results:
+```json
 QUERY PLAN                                                                                                                      |
 --------------------------------------------------------------------------------------------------------------------------------+
 Limit  (cost=1402.67..1402.67 rows=1 width=82) (actual time=26.191..26.192 rows=0 loops=1)                                      |
@@ -108,9 +89,16 @@ Limit  (cost=1402.67..1402.67 rows=1 width=82) (actual time=26.191..26.192 rows=
               ->  Bitmap Index Scan on tdate  (cost=0.00..287.50 rows=9508 width=0) (actual time=8.367..8.367 rows=9626 loops=1)|
                     Index Cond: ((date >= '2023-1-01'::text) AND (date <= '2023-12-12'::text))                                  |
 Planning Time: 0.870 ms                                                                                                         |
-Execution Time: 26.328 ms                                                                                                       |
+Execution Time: 26.328 ms    
+```
+
+- Yes, this had the expected result. With this added index, the query is now acceptably fast.  
+
 
 ### Slow Endpoint \#2 - GET - Get All Purchases Warranty
+
+- initial results of running explain analyze:
+```sql
 QUERY PLAN                                                                                                                             |
 ---------------------------------------------------------------------------------------------------------------------------------------+
 Nested Loop  (cost=18667.50..20291.72 rows=7 width=17) (actual time=256.664..266.135 rows=0 loops=1)                                   |
@@ -128,11 +116,18 @@ Nested Loop  (cost=18667.50..20291.72 rows=7 width=17) (actual time=256.664..266
   ->  Seq Scan on transactions t  (cost=0.00..1624.04 rows=7 width=0) (never executed)                                                 |
         Filter: (user_id = 1)                                                                                                          |
 Planning Time: 0.912 ms                                                                                                                |
-Execution Time: 266.191 ms                                                                                                             |
+Execution Time: 266.191 ms 
+```
 
+- This query plan indicates that the query begins with a sequential sacn on the purchases table, filtering based on warranty_date and transaction_id, followed by a sequential scan on transaction table, filtering by user_id. To speed up this query, we will add an index to warranty_datye in the purchases table.
 
+- Command for adding the index:
+```sql
 create index pwarranty on purchases (warranty_date)
+```
 
+- New explain analyze results:
+```sql
 QUERY PLAN                                                                                                                      |
 --------------------------------------------------------------------------------------------------------------------------------+
 Sort  (cost=14297.05..14297.06 rows=7 width=17) (actual time=45.659..45.660 rows=0 loops=1)                                     |
@@ -149,13 +144,16 @@ Sort  (cost=14297.05..14297.06 rows=7 width=17) (actual time=45.659..45.660 rows
         ->  Seq Scan on transactions t  (cost=0.00..1624.04 rows=7 width=0) (never executed)                                    |
               Filter: (user_id = 1)                                                                                             |
 Planning Time: 0.650 ms                                                                                                         |
-Execution Time: 46.503 ms      
+Execution Time: 46.503 ms 
+```
 
+- Yes, this had the expected result. With this added index, the query is now acceptably fast.   
 
 
 ### Slow Endpoint \#3 - GET - Get Purchases
 
-
+- Initial results of running explain analyze:
+```sql
 QUERY PLAN                                                                                                                                      |
 ------------------------------------------------------------------------------------------------------------------------------------------------+
 Gather Merge  (cost=23270.63..23271.33 rows=6 width=78) (actual time=1007.148..1015.855 rows=0 loops=1)                                         |
@@ -173,11 +171,18 @@ Gather Merge  (cost=23270.63..23271.33 rows=6 width=78) (actual time=1007.148..1
               ->  Seq Scan on transactions  (cost=0.00..1624.04 rows=7 width=20) (never executed)                                               |
                     Filter: (user_id = 2)                                                                                                       |
 Planning Time: 0.355 ms                                                                                                                         |
-Execution Time: 1015.893 ms                                                                                                                     |                                                                                                                   |
+Execution Time: 1015.893 ms                                                                                                                     |                                                
+```
 
+- This query plan indicates that the query executes a squential scan on the purchases table with filters on item, category, price, and transaction_id, followed by a sequential scan on the transactions table, filtered by user_id. To speed up this query, we will add an index on the price column in the purchases table. 
+
+- Command for adding the index:
+```sql
 create index ppurchase on purchases (price)
+```
 
-
+- New explain analyze results:
+```sql
 QUERY PLAN                                                                                                                      |
 --------------------------------------------------------------------------------------------------------------------------------+
 Sort  (cost=1632.66..1632.68 rows=7 width=78) (actual time=0.024..0.025 rows=0 loops=1)                                         |
@@ -192,8 +197,6 @@ Sort  (cost=1632.66..1632.68 rows=7 width=78) (actual time=0.024..0.025 rows=0 l
 Planning Time: 0.257 ms                                                                                                         |
 Execution Time: 0.052 ms                                                                                                        |
                                                                                                  |
+```
 
-
-
-
-
+- Yes, this had the expected result. With this added index, the query is now acceptably fast. 
