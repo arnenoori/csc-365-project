@@ -152,6 +152,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
         }
         payload = {
             "model": "gpt-4-vision-preview",
+            response_format={ "type": "json_object" },
             "messages": [
                 {
                     "role": "user",

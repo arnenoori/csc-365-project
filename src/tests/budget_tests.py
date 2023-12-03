@@ -378,60 +378,60 @@ class TestIsFirstDayOfMonth:
 
     # Returns True when given a date with day 1
     def test_returns_true_when_given_date_with_day_1(self):
-        assert is_first_day_of_month("2022-01-01") == True
+        assert is_first_day_of_month("2022-01-01")
 
     # Returns False when given a date with day other than 1
     def test_returns_false_when_given_date_with_day_other_than_1(self):
-        assert is_first_day_of_month("2022-01-02") == False
+        assert not is_first_day_of_month("2022-01-02")
 
     # Works correctly with dates from different years
     def test_works_correctly_with_dates_from_different_years(self):
-        assert is_first_day_of_month("2023-01-01") == True
-        assert is_first_day_of_month("2024-02-01") == True
-        assert is_first_day_of_month("2025-03-01") == True
+        assert is_first_day_of_month("2023-01-01")
+        assert is_first_day_of_month("2024-02-01")
+        assert is_first_day_of_month("2025-03-01")
 
     # Returns False when given an empty string
     def test_returns_false_when_given_empty_string(self):
-        assert is_first_day_of_month("") == False
+        assert not is_first_day_of_month("")
 
     # Returns False when given a date with an invalid format
     def test_returns_false_when_given_date_with_invalid_format(self):
-        assert is_first_day_of_month("2022-13-01") == False
-        assert is_first_day_of_month("2022-01-32") == False
-        assert is_first_day_of_month("2022-01-01T00:00:00") == False
+        assert not is_first_day_of_month("2022-13-01")
+        assert not is_first_day_of_month("2022-01-32")
+        assert not is_first_day_of_month("2022-01-01T00:00:00")
 
     # Returns False when given a non-string input
     def test_returns_false_when_given_non_string_input(self):
-        assert is_first_day_of_month(2022) == False
-        assert is_first_day_of_month(1.5) == False
-        assert is_first_day_of_month(True) == False
+        assert not is_first_day_of_month(2022)
+        assert not is_first_day_of_month(1.5)
+        assert not is_first_day_of_month(True)
 
 class TestIsLastDayOfMonth:
 
     # Returns True when given the last day of the month
     def test_returns_true_when_given_last_day_of_month(self):
-        assert is_last_day_of_month("2022-01-31") == True
-        assert is_last_day_of_month("2022-02-28") == True
-        assert is_last_day_of_month("2022-03-31") == True
-        assert is_last_day_of_month("2022-04-30") == True
+        assert is_last_day_of_month("2022-01-31")
+        assert is_last_day_of_month("2022-02-28")
+        assert is_last_day_of_month("2022-03-31")
+        assert is_last_day_of_month("2022-04-30")
 
     # Returns False when given a date that is not the last day of the month
     def test_returns_false_when_given_not_last_day_of_month(self):
-        assert is_last_day_of_month("2022-01-30") == False
-        assert is_last_day_of_month("2022-02-27") == False
-        assert is_last_day_of_month("2022-03-30") == False
-        assert is_last_day_of_month("2022-04-29") == False
+        assert not is_last_day_of_month("2022-01-30")
+        assert not is_last_day_of_month("2022-02-27")
+        assert not is_last_day_of_month("2022-03-30")
+        assert not is_last_day_of_month("2022-04-29")
 
     # Returns False when given an empty string
     def test_returns_false_when_given_empty_string(self):
-        assert is_last_day_of_month("") == False
+        assert not is_last_day_of_month("")
 
     # Returns False when given a string with invalid format
     def test_returns_false_when_given_invalid_format(self):
-        assert is_last_day_of_month("2022-13-01") == False
-        assert is_last_day_of_month("2022-02-30") == False
-        assert is_last_day_of_month("2022-03-32") == False
-        assert is_last_day_of_month("2022-04-31") == False
+        assert not is_last_day_of_month("2022-13-01")
+        assert not is_last_day_of_month("2022-02-30")
+        assert not is_last_day_of_month("2022-03-32")
+        assert not is_last_day_of_month("2022-04-31")
 
 
 class TestCreateBudget:
