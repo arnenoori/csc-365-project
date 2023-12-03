@@ -2,7 +2,7 @@
 
 ## Fake Data Modeling
 
-Link to python file used to construct the million rows of data: 
+Link to python file used to construct the million rows of data: https://github.com/arnenoori/receipts-backend/blob/v4/Testing/populate_posts.py 
 
 ### Tables
 Users - **8,000 rows**
@@ -12,7 +12,7 @@ Transactions - **46,432 rows**
 
 This code generates **1,025,323 rows** in total
 
-This simulated data is in line with how we predict the data in our application would scale in a real world scenario. We simulated with 8,000 users. Each user has 5-10 transactions and each transaction has 5-30 purchases. Additionally, each user has 1 budget. A transaction is defined as a shopping event while a purchase is an an individual purchase during this shopping event. 
+This simulated data is in line with how we predict the data in our application would scale in a real world scenario. We simulated with 8,000 users. Each user has 5-10 transactions and each transaction has 5-30 purchases. Additionally, each user has 1 budget. A transaction is defined as a shopping event while a purchase is an individual items bought during this shopping event. 
 
 ## Performance Results of Hitting Endpoints
 
@@ -45,13 +45,13 @@ This simulated data is in line with how we predict the data in our application w
 11. `GET` - Get all Purchases Warranty - **612ms**
 12. `GET` - Get Purchases - **744ms**
 
-We are skipping '`GET` - Get All Purchases Categorized' since this `GET` call already goes through every purchase. It cannot be optimized. Also, we are disregarding the `DELETE` since this `DELETE` call finds users by their IDs which is already an index.
+We are disregarding `GET - Get All Purchases Categorized` since this GET call already goes through every purchase. It cannot be optimized. Also, we are disregarding the `DELETE - Delete Transaction` since this DELETE call finds users by their IDs which is already an index.
 
 ## Performance Tuning
 
 ### Slow Endpoint \#1 - GET - Get Transactions
 
-- initial results of running explain analyze:
+- Initial results of running explain analyze:
 ```sql
 QUERY PLAN                                                                                                                         |
 -----------------------------------------------------------------------------------------------------------------------------------+
@@ -97,7 +97,7 @@ Execution Time: 26.328 ms
 
 ### Slow Endpoint \#2 - GET - Get All Purchases Warranty
 
-- initial results of running explain analyze:
+- Initial results of running explain analyze:
 ```sql
 QUERY PLAN                                                                                                                             |
 ---------------------------------------------------------------------------------------------------------------------------------------+
