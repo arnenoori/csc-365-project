@@ -377,3 +377,140 @@ class TestUploadReceipt:
         src.api.receipt_processing.create_transaction.assert_called_once_with(1, 'Store')
         src.api.receipt_processing.create_purchase.assert_called_once_with(1, 1, 'Item 1', 10, 1)
         src.api.receipt_processing.create_purchase.assert_called_once_with(1, 1, 'Item 2', 20, 2)
+
+
+class TestCodeUnderTest:
+
+    # Successfully upload a receipt and process it
+    def test_upload_and_process_receipt_successfully(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"store_name": "Test Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        result = code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert result == {"message": "Receipt uploaded and processed successfully"}
+
+    # Receipt contains multiple items
+    def test_receipt_contains_multiple_items(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"store_name": "Test Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        result = code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert result == {"message": "Receipt uploaded and processed successfully"}
+
+    # Receipt contains no items
+    def test_receipt_contains_no_items(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"store_name": "Test Store", "items": []}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        result = code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert result == {"message": "Receipt uploaded and processed successfully"}
+
+    # API key is invalid
+    def test_invalid_api_key(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"error": "Invalid API key"}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        with pytest.raises(HTTPException) as e:
+            code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert e.value.status_code == 500
+        assert str(e.value.detail) == 'Invalid API key'
+
+    # Image is not a valid JPEG file
+    def test_invalid_image_format(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"error": "Invalid image format"}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        with pytest.raises(HTTPException) as e:
+            code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert e.value.status_code == 500
+        assert str(e.value.detail) == 'Invalid image format'
+
+    # Image is too large to be encoded to base64
+    def test_image_too_large(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode', side_effect=MemoryError)
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Invoke the code under test
+        with pytest.raises(HTTPException) as e:
+            code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert e.value.status_code == 500
+        assert str(e.value.detail) == 'Image is too large to be encoded to base64'
+
+    # Receipt contains only one item
+    def test_upload_and_process_receipt_successfully(self, mocker):
+        # Mock the necessary dependencies
+        mocker.patch('code_under_test.base64.b64encode')
+        mocker.patch('code_under_test.requests.post')
+        mocker.patch('code_under_test.create_transaction')
+        mocker.patch('code_under_test.create_purchase')
+
+        # Mock the response from the OpenAI API
+        response_mock = mocker.Mock()
+        response_mock.text = '{"store_name": "Test Store", "items": [{"item": "Item 1", "price": 10, "quantity": 1}, {"item": "Item 2", "price": 20, "quantity": 2}]}'
+        mocker.patch('code_under_test.requests.post', return_value=response_mock)
+
+        # Invoke the code under test
+        result = code_under_test.upload_receipt(1, mocker.Mock())
+
+        # Assert the expected behavior
+        assert result == {"message": "Receipt uploaded and processed successfully"}
