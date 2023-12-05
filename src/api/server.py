@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, exceptions, File, UploadFile, status
+from fastapi import FastAPI, HTTPException, exceptions, File, UploadFile, status, Depends, APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from src.api import transactions, admin, users, purchases, budget
@@ -11,6 +11,7 @@ import boto3
 import requests
 import os
 import time
+from src.api import auth
 from starlette.middleware.cors import CORSMiddleware
 from src.api.transactions import create_transaction
 from src.api.purchases import create_purchase
@@ -46,6 +47,12 @@ s3 = boto3.resource(
     aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
 )
 
+router = APIRouter(
+    prefix="/receipts",
+    tags=["receipt"],
+    dependencies=[Depends(auth.get_api_key)],
+)
+
 api_key = os.getenv('OPENAI_API_KEY')
 
 bucket = s3.Bucket('user-receipts-upload')
@@ -77,7 +84,7 @@ def get_file_type(contents):
     return 'unknown'
 
 
-@app.post("/upload_receipt")
+@app.post("/upload_receipt", tags=["receipt"])
 async def upload_receipt_to_S3(user_id: int, file: UploadFile = File(...)):
     if not file:
         raise HTTPException (
@@ -225,7 +232,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
         
     
 #gets all of a user's receipt image url's from database using user_id - working
-@app.get("/user/{user_id}/receipts")
+@app.get("/", tags=["receipt"])
 async def get_receipts(user_id: int):
     try:
         with db.engine.begin() as connection:
