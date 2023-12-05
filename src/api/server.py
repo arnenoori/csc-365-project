@@ -187,6 +187,9 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
+    print(response)
+    print(response.text)
+
     # Parse the response to extract the receipt data
     receipt_data = json.loads(response.text)
     
