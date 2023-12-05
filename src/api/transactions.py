@@ -43,8 +43,8 @@ def create_transaction(user_id: int, transaction: NewTransaction):
     transaction_id = None
 
     # check if date is valid
-    # if not is_valid_date(date):
-    #     raise HTTPException(status_code=400, detail="Invalid date")
+    if not is_valid_date(date):
+        raise HTTPException(status_code=400, detail="Invalid date")
 
     try:
         with db.engine.begin() as connection:
@@ -85,10 +85,10 @@ def get_transactions(user_id: int, transaction_id: int = -1, page: int = 1, page
         raise HTTPException(status_code=400, detail="Invalid sort_order")
     
     # check if date_from and date_to are valid
-    # if not is_valid_date(date_from):
-    #     raise HTTPException(status_code=400, detail="Invalid date_from")
-    # if not is_valid_date(date_to):
-    #     raise HTTPException(status_code=400, detail="Invalid date_to")
+    if not is_valid_date(date_from):
+        raise HTTPException(status_code=400, detail="Invalid date_from")
+    if not is_valid_date(date_to):
+        raise HTTPException(status_code=400, detail="Invalid date_to")
     
     offset = (page - 1) * page_size
     merchant = f"%{merchant}%"
@@ -196,8 +196,8 @@ def update_transaction(user_id: int, transaction_id: int, transaction: NewTransa
     date = transaction.date
 
     # check if date is valid
-    # if not is_valid_date(date):
-    #     raise HTTPException(status_code=400, detail="Invalid date")
+    if not is_valid_date(date):
+        raise HTTPException(status_code=400, detail="Invalid date")
 
     try:
         with db.engine.begin() as connection:

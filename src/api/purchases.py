@@ -144,10 +144,10 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
     category = purchase.category
 
     # Validate inputs
-    # if not is_valid_date(warranty_date):
-    #     raise HTTPException(status_code=400, detail="Invalid warranty date format")
-    # if not is_valid_date(return_date):
-    #     raise HTTPException(status_code=400, detail="Invalid return date format")
+    if not is_valid_date(warranty_date):
+        raise HTTPException(status_code=400, detail="Invalid warranty date format")
+    if not is_valid_date(return_date):
+        raise HTTPException(status_code=400, detail="Invalid return date format")
     if not isinstance(price, int) or price <= 0:
         raise HTTPException(status_code=400, detail="Invalid price format")
     if not isinstance(quantity, int) or quantity <= 1:
@@ -258,10 +258,10 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
     quantity = purchase.quantity
 
     # Validate inputs
-    # if not is_valid_date(warranty_date):
-    #     raise HTTPException(status_code=400, detail="Invalid warranty date format")
-    # if not is_valid_date(return_date):
-    #     raise HTTPException(status_code=400, detail="Invalid return date format")
+    if not is_valid_date(warranty_date):
+        raise HTTPException(status_code=400, detail="Invalid warranty date format")
+    if not is_valid_date(return_date):
+        raise HTTPException(status_code=400, detail="Invalid return date format")
     if not isinstance(price, int) or price <= 0:
         raise HTTPException(status_code=400, detail="Invalid price format")
     if not isinstance(quantity, int) or quantity <= 1:
