@@ -148,10 +148,10 @@ def create_purchase(user_id: int, transaction_id: int, purchase: NewPurchase):
         raise HTTPException(status_code=400, detail="Invalid warranty date format")
     if not is_valid_date(return_date):
         raise HTTPException(status_code=400, detail="Invalid return date format")
-    if not isinstance(price, int) or price <= 0:
-        raise HTTPException(status_code=400, detail="Invalid price format")
-    if not isinstance(quantity, int) or quantity <= 1:
-        raise HTTPException(status_code=400, detail="Invalid quantity format")
+    # if not isinstance(price, int) or price <= 0:
+    #     raise HTTPException(status_code=400, detail="Invalid price format")
+    # if not isinstance(quantity, int) or quantity <= 1:
+    #     raise HTTPException(status_code=400, detail="Invalid quantity format")
     if category not in ['Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
                         'Health and Beauty', 'Entertainment', 'Travel', 'Automotive', 'Services', 
                         'Gifts and Special Occasions', 'Education', 'Fitness and Sports', 'Pets', 
@@ -262,10 +262,10 @@ def update_purchase(user_id: int, transaction_id: int, purchase_id: int, purchas
         raise HTTPException(status_code=400, detail="Invalid warranty date format")
     if not is_valid_date(return_date):
         raise HTTPException(status_code=400, detail="Invalid return date format")
-    if not isinstance(price, int) or price <= 0:
-        raise HTTPException(status_code=400, detail="Invalid price format")
-    if not isinstance(quantity, int) or quantity <= 1:
-        raise HTTPException(status_code=400, detail="Invalid quantity format")
+    # if not isinstance(price, int) or price <= 0:
+    #     raise HTTPException(status_code=400, detail="Invalid price format")
+    # if not isinstance(quantity, int) or quantity <= 1:
+    #     raise HTTPException(status_code=400, detail="Invalid quantity format")
     if category not in ['Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
                         'Health and Beauty', 'Entertainment', 'Travel', 'Automotive', 'Services', 
                         'Gifts and Special Occasions', 'Education', 'Fitness and Sports', 'Pets', 
