@@ -151,7 +151,6 @@ async def s3_upload(contents: bytes, key: str):
 #returns transaction id so receipt image and all of its info can be linked by that
 async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = File(...)):
     try:
-
         # Prepare the headers and payload for the OpenAI API request
         headers = {
             "Content-Type": "application/json",
@@ -228,6 +227,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
 
         return transaction_id
     except Exception as e:
+        print("Error: {0}".format(e))
         raise HTTPException(status_code=500, detail=str(e))
         
     
