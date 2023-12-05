@@ -229,29 +229,6 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
         return transaction_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-        
-    
-#gets all of a user's receipt image url's from database using user_id - working
-@app.get("/", tags=["receipt"])
-async def get_receipts(user_id: int):
-    try:
-        with db.engine.begin() as connection:
-            result = connection.execute(
-                sqlalchemy.text(
-                    """
-                    SELECT r.url
-                    FROM receipts AS r
-                    JOIN transactions AS t ON r.transaction_id = t.id
-                    WHERE t.user_id = :user_id
-                    """
-                ), {"user_id": user_id}
-            )
-            receipt_urls = [row[0] for row in result]
-            return {"receipts": receipt_urls}
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-        raise HTTPException(status_code=500, detail=str(error))
-
 
 app.include_router(transactions.router)
 app.include_router(users.router)
