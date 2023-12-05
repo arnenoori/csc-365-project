@@ -7,6 +7,7 @@ from sqlalchemy.exc import DBAPIError
 import re
 from datetime import datetime, timedelta
 import time
+import uuid
 
 router = APIRouter(
     prefix="/user",
@@ -254,7 +255,7 @@ def get_all_purchases_warranty(user_id: int):
 
 # get public.user from auth.user
 @router.get("/auth/{auth_id}", tags=["user"])
-def get_auth_user(auth_id: int):
+def get_auth_user(auth_id: uuid.UUID):
     """ """
     try:
         with db.engine.begin() as connection:
