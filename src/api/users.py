@@ -251,3 +251,24 @@ def get_all_purchases_warranty(user_id: int):
     print(f"time: {(end_time - start_time) * 1000}")
 
     return ans
+
+# get public.user from auth.user
+@router.get("/auth/{auth_id}", tags=["user"])
+def get_auth_user(auth_id: int):
+    """ """
+    try:
+        with db.engine.begin() as connection:
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT id, name, email
+                    FROM users
+                    WHERE auth_id = :auth_id
+                    """
+                ), [{"auth_id": auth_id}]).fetchone()
+            if ans is None:
+                raise HTTPException(status_code=404, detail="User not found")
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    return {"id": ans.id, "name": ans.name, "email": ans.email}
