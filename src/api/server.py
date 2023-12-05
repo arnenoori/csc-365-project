@@ -163,7 +163,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                         "text": """return the information in this receipt as neatly formatted JSON. Only return store name, date, all items and their associated price and quantity. only provide a compliant JSON response following this format without deviation:
                                     {
                                         "store_name": "store name",
-                                        "date": "the date",
+                                        "date": "the date (the date should always be YYYY-MM-DD)",
                                         "items": [
                                         {
                                             "name": "item name",
