@@ -268,6 +268,7 @@ def get_auth_user(auth_id: int):
                 ), [{"auth_id": auth_id}]).fetchone()
             if ans is None:
                 raise HTTPException(status_code=404, detail="User not found")
+            print(ans)
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
