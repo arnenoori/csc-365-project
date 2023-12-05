@@ -60,5 +60,3 @@ def upload_receipt(user_id: int, file: UploadFile = File(...)):
             create_purchase(user_id, transaction_id, item['item'], item['price'], item['quantity'])
 
         return {"message": "Receipt uploaded and processed successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
