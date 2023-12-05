@@ -76,7 +76,7 @@ def create_user(new_user: NewUser):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"time": (end_time - start_time) * 1000, "user_id": user_id}
+    return {"user_id": user_id}
 
 
 
@@ -106,7 +106,7 @@ def get_user(user_id: int):
     print(f"time: {(end_time - start_time) * 1000}")
 
     # ex: {"name": "John Doe", "email": "jdoe@gmail"}
-    return {"time": (end_time - start_time) * 1000, "name": ans.name, "email": ans.email}
+    return {"name": ans.name, "email": ans.email}
 
 # deletes a user
 @router.delete("/{user_id}", tags=["user"])
@@ -135,7 +135,7 @@ def delete_user(user_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"time": (end_time - start_time) * 1000}
+    return "OK"
 
 # updates a user's name and email
 @router.put("/{user_id}", tags=["user"])
@@ -186,7 +186,7 @@ def update_user(user_id: int, new_user: NewUser):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return {"time": (end_time - start_time) * 1000, "name": name, "email": email}
+    return {"name": name, "email": email}
 
 # gets sum of money spent of different catagories of all purchases for a user
 @router.get("/{user_id}/categories", tags=["user"])
@@ -216,7 +216,7 @@ def get_all_purchases_categorized(user_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return [{"time": (end_time - start_time) * 1000}] + ans
+    return ans
 
 # Get warranty of all purchases for a user 
 # and return purchases that are going to expire within a week
@@ -250,4 +250,4 @@ def get_all_purchases_warranty(user_id: int):
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
 
-    return [{"time": (end_time - start_time) * 1000}] + ans
+    return ans

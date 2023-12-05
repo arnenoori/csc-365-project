@@ -118,7 +118,7 @@ def create_budget(user_id: int, budget: NewBudget):
         print(f"Error returned: <<<{error}>>>")
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
-    return {"time": (end_time - start_time) * 1000, "budget_id": budget_id}
+    return {"budget_id": budget_id}
 
 # gets a user's monthly budgets
 @router.get("/", tags=["budgets"])
@@ -151,9 +151,8 @@ def get_budgets(user_id: int):
         print(f"DBAPIError returned: <<<{error}>>>")
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
-    wtime = dict(ans._mapping)
-    wtime["time"] = (end_time - start_time) * 1000
-    return wtime
+
+    return dict(ans._mapping)
 
 # updates a user's monthly budgets
 @router.put("/{budget_id}", tags=["budgets"])
@@ -207,7 +206,7 @@ def update_budget(user_id: int, budget_id: int, budget: NewBudget):
         print(f"DBAPIError returned: <<{error}>>>")
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")    
-    return {"time": (end_time - start_time) * 1000, "budget_id": budget_id, "groceries": budget.groceries, "clothing_and_accessories": budget.clothing_and_accessories, 
+    return {"budget_id": budget_id, "groceries": budget.groceries, "clothing_and_accessories": budget.clothing_and_accessories, 
             "electronics": budget.electronics, "home_and_garden": budget.home_and_garden, "health_and_beauty": budget.health_and_beauty, 
             "entertainment": budget.entertainment, "travel": budget.travel, "automotive": budget.automotive, "services": budget.services, 
             "gifts_and_special_occasions": budget.gifts_and_special_occasions, "education": budget.education, 
@@ -303,7 +302,6 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")    
     # in form of {category: {actual: amt, budget: amt}, ...}
-    comparisons["time"] = (end_time - start_time) * 1000
     return comparisons
 
 # gets sum of money spent of different catagories of all purchases for a user
@@ -333,4 +331,5 @@ def get_all_purchases_categorized(user_id: int):
     print(f"USER_{user_id}_PURCHASES_CATAGORIZED: {ans}")
     end_time = time.time()
     print(f"time: {(end_time - start_time) * 1000}")
-    return [{"time": (end_time - start_time) * 1000}] + ans
+    
+    return ans
