@@ -333,3 +333,37 @@ def get_all_purchases_categorized(user_id: int):
     print(f"time: {(end_time - start_time) * 1000}")
     
     return ans
+
+# Get warranty of all purchases for a user 
+# and return purchases that are going to expire within a week
+@router.get("/warranty", tags=["budgets"])
+def get_all_purchases_warranty(user_id: int):
+    start_time = time.time()
+    ans = []
+
+    try:
+        with db.engine.begin() as connection:
+            # Calculate the date one week from now
+            one_week_from_now = datetime.now() + timedelta(weeks=1)
+
+            # ans stores query result as a list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT item
+                    FROM purchases AS p
+                    JOIN transactions AS t ON p.transaction_id = t.id
+                    WHERE t.user_id = :user_id
+                    AND p.warranty_date::timestamp <= :one_week_from_now
+                    ORDER BY p.warranty_date
+                    """
+                ), {"user_id": user_id, "one_week_from_now": one_week_from_now}
+            ).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_PURCHASES_WARRANTY: {ans}")
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")
+
+    return ans

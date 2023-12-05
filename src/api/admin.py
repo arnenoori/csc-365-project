@@ -8,7 +8,7 @@ router = APIRouter(
 )
 
 @router.get("/info/")
-def get_shop_info():
+def get_project_info():
     return {
         "Project Name": "Receipt App",
         "Contributors": ["Connor OBrien", "Arne Noori", "Bryan Nguyen", "Sebastian Thau"]
