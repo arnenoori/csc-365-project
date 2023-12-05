@@ -221,10 +221,10 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
     try:
         with db.engine.begin() as connection:
             # check if date_from and date_to are valid
-            if date_from is not None and not is_valid_date(date_from) :
-                raise HTTPException(status_code=400, detail="Invalid date_from")
-            if date_to is not None and not is_valid_date(date_to):
-                raise HTTPException(status_code=400, detail="Invalid date_to")
+            # if date_from is not None and not is_valid_date(date_from) :
+            #     raise HTTPException(status_code=400, detail="Invalid date_from")
+            # if date_to is not None and not is_valid_date(date_to):
+            #     raise HTTPException(status_code=400, detail="Invalid date_to")
             if date_from is None and date_to is not None:
                 raise HTTPException(status_code=400, detail="date_from must be specified if date_to is specified")
             if date_from is not None and date_to is None:
