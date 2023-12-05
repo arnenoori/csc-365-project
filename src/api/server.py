@@ -113,32 +113,32 @@ async def upload_receipt_to_S3(user_id: int, file: UploadFile = File(...)):
     
     #used as unique identifier
     upload_time = time.time()
-    
+
     await s3_upload(contents=contents, key=f'{file.filename}.{int(upload_time)}.{SUPPORTED_FILES[file_type]}')
     print("upload successful")
     
     image_url = f"https://{os.getenv('AWS_S3_BUCKET_NAME')}.s3.us-west-1.amazonaws.com/{file.filename}.{int(upload_time)}.{SUPPORTED_FILES[file_type]}"
 
     #once this returns, all receipt info will be in purchases and transactions table assuming openai func works with proper formatting
-    transaction_id = await openai_process_receipt(user_id=user_id, img_url=image_url, file=file)
+    receiptJSON = await openai_process_receipt(user_id=user_id, img_url=image_url, file=file)
 
     print("openai processing done")
 
-    #Storing receipt_url in database, linking it to user with transaction_id, receipt data done in func call right above
-    try: 
-        with db.engine.begin() as connection:
-            connection.execute(
-                sqlalchemy.text(
-                    """
-                    INSERT INTO receipts (transaction_id, url, parsed_data)
-                    VALUES (:transaction_id, :url, :parsed_data)
-                    """
-                ), {"transaction_id": transaction_id['transaction_id'], "url": image_url, "parsed_data": ""})
-            print("receipt_url inserted into receipts table")
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-    return {"image_url": image_url}
+    # Storing receipt_url in database, linking it to user with transaction_id, receipt data done in func call right above
+    # try: 
+    #     with db.engine.begin() as connection:
+    #         connection.execute(
+    #             sqlalchemy.text(
+    #                 """
+    #                 INSERT INTO receipts (transaction_id, url, parsed_data)
+    #                 VALUES (:transaction_id, :url, :parsed_data)
+    #                 """
+    #             ), {"transaction_id": transaction_id['transaction_id'], "url": image_url, "parsed_data": ""})
+    #         print("receipt_url inserted into receipts table")
+    # except DBAPIError as error:
+    #     print(f"Error returned: <<<{error}>>>")
+    print(receiptJSON)
+    return receiptJSON
 
 
 
@@ -151,7 +151,6 @@ async def s3_upload(contents: bytes, key: str):
 #returns transaction id so receipt image and all of its info can be linked by that
 async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = File(...)):
     try:
-
         # Prepare the headers and payload for the OpenAI API request
         headers = {
             "Content-Type": "application/json",
@@ -165,18 +164,10 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                     "content": [
                         {
                             "type": "text",
-                            "text": """return the information in this receipt as neatly formatted JSON. Only return store name, date, all items and their associated price and quantity. only provide a compliant JSON response following this format without deviation:
-                                        {
-                                          "store_name": "store name",
-                                          "date": "the date",
-                                          "items": [
-                                            {
-                                              "name": "item name",
-                                              "price": 0.99,
-                                              "quantity": 5
-                                            }
-                                          ]
-                                        } """
+                            "text": """
+                            return the text in this receipt as properly formatted JSON. Only return store name, date, all items and their associated price and quantity. If date is not visible, say "no date". If any values cannot be found, don't include that item. Only provide a JSON response following this format without deviation:
+                            { "store_name": "store name", "date": "the date", "items": [ {"name": "item1 name","price": 0.99,"quantity": 5} ] } 
+                            """
                         },
                         {
                             "type": "image_url",
@@ -187,19 +178,18 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                     ]
                 }
             ],
-            "max_tokens": 300
+            "max_tokens": 2000
         }
 
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
         # Parse the response to extract the receipt data
         receipt_data = json.loads(response.text)
-        
+    
         # Extract the content string
         content = receipt_data['choices'][0]['message']['content']
 
         # Remove the triple backticks and any additional text around the JSON
-        
         json_str = content.split('```json\n', 1)[1]
         json_str = json_str.rsplit('\n```', 1)[0]
 
@@ -207,27 +197,29 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
         receipt_json = json.loads(json_str)
 
         # Now receipt_json contains the raw JSON data
-        print("\n {0} \n".format(receipt_json))
+        # print("\n {0} \n".format(receipt_json))
     
         # Extract the necessary data from the receipt_data
-        store_name = receipt_json['store_name']
-        receipt_date = receipt_json['date']
+        # store_name = receipt_json['store_name']
+        # receipt_date = receipt_json['date']
+
+        #format date
         
-        items = receipt_json['items']  # This should be a list of items, where each item is a dictionary with 'item', 'price', and 'quantity' keys
+        # items = receipt_json['items']  # This should be a list of items, where each item is a dictionary with 'item', 'price', and 'quantity' keys
         
         # Create a new transaction with the store name
-        created_transaction = NewTransaction(merchant=store_name, description="", date=receipt_date)
+        # created_transaction = NewTransaction(merchant=store_name, description="", date=receipt_date)
 
-        transaction_id = create_transaction(user_id, created_transaction)
-        print("created transaction {0}".format(transaction_id))
+        # transaction_id = create_transaction(user_id, created_transaction)
+        # print("created transaction {0}".format(transaction_id))
         
         # Create a new purchase for each item in the receipt
-        for item in items:
-            created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category="", warranty_date="2023-11-16", return_date="2023-11-16")
-            create_purchase(user_id, transaction_id['transaction_id'], created_purchase)
-
-        return transaction_id
+        # for item in items:
+        #     created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category="", warranty_date="2023-11-16", return_date="2023-11-16")
+        #     create_purchase(user_id, transaction_id['transaction_id'], created_purchase)
+        return receipt_json
     except Exception as e:
+        print("Error: {0}".format(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 app.include_router(transactions.router)
