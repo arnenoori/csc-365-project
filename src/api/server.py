@@ -160,7 +160,10 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                 "content": [
                     {
                         "type": "text",
-                        "text": """return the information in this receipt as neatly formatted JSON. Only return store name, date, all items and their associated price and quantity. only provide a compliant JSON response following this format without deviation:
+                        "text": """return the information in this receipt as neatly formatted JSON. Only return store name, date, all items and their associated price and quantity and categories. For categories pick 1 category you think is best fits out of this list "Choose the most relevant category from the following. Only choose one of these items: 'Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
+    #                     'Health and Beauty', 'Entertainment', 'Travel', 'Automotive', 'Services', 
+    #                     'Gifts and Special Occasions', 'Education', 'Fitness and Sports', 'Pets', 
+    #                     'Office Supplies', 'Financial Services', 'Other']". only provide a compliant JSON response following this format without deviation:
                                     {
                                         "store_name": "store name",
                                         "date": "the date (the date should always be YYYY-MM-DD)",
@@ -169,10 +172,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                                             "name": "item name",
                                             "price": 0.99,
                                             "quantity": 5
-                                            "category": "Choose the most relevant category from the following. Only choose one of these items: ['Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
-    #                     'Health and Beauty', 'Entertainment', 'Travel', 'Automotive', 'Services', 
-    #                     'Gifts and Special Occasions', 'Education', 'Fitness and Sports', 'Pets', 
-    #                     'Office Supplies', 'Financial Services', 'Other']",
+                                            "category": 'category name',
                                         }
                                         ]
                                     } """
@@ -225,7 +225,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
     
     # Create a new purchase for each item in the receipt
     for item in items:
-        created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category=item['category'], warranty_date="2023-11-16", return_date="2023-11-16")
+        created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category="Automotive", warranty_date="2023-11-16", return_date="2023-11-16")
         create_purchase(user_id, transaction_id['transaction_id'], created_purchase)
 
     return transaction_id
