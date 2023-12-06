@@ -188,25 +188,3 @@ def update_user(user_id: int, new_user: NewUser):
     print(f"time: {(end_time - start_time) * 1000}")
 
     return {"name": name, "email": email}
-
-# get public.user from auth.user
-@router.get("/auth/{auth_id}", tags=["user"])
-def get_auth_user(auth_id: uuid.UUID):
-    """ """
-    try:
-        with db.engine.begin() as connection:
-            ans = connection.execute(
-                sqlalchemy.text(
-                    """
-                    SELECT id, name, email
-                    FROM users
-                    WHERE auth_id = :auth_id
-                    """
-                ), [{"auth_id": auth_id}]).fetchone()
-            if ans is None:
-                raise HTTPException(status_code=404, detail="User not found")
-            print(ans)
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-    return {"id": ans.id, "name": ans.name, "email": ans.email}
