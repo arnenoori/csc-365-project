@@ -317,7 +317,7 @@ def get_all_purchases_categorized(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price) AS total
+                    SELECT category, SUM(price * quantity) AS total
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
