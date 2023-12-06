@@ -269,7 +269,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price) AS total
+                    SELECT category, SUM(price * quantity) AS total
                     FROM purchases
                     JOIN transactions on purchases.transaction_id = transactions.id
                     WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to)
