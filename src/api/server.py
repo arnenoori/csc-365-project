@@ -169,7 +169,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
                                             "name": "item name",
                                             "price": 0.99,
                                             "quantity": 5
-                                            "category": "Choose the most relevant category from ['Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
+                                            "category": "Choose the most relevant category from the following. You must choose one of these items: ['Groceries', 'Clothing and Accessories', 'Electronics', 'Home and Garden', 
     #                     'Health and Beauty', 'Entertainment', 'Travel', 'Automotive', 'Services', 
     #                     'Gifts and Special Occasions', 'Education', 'Fitness and Sports', 'Pets', 
     #                     'Office Supplies', 'Financial Services', 'Other']",
