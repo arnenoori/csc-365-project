@@ -225,7 +225,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
     
     # Create a new purchase for each item in the receipt
     for item in items:
-        created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category="", warranty_date="2023-11-16", return_date="2023-11-16")
+        created_purchase = NewPurchase(item=item['name'], price=item['price'], quantity=item['quantity'], category=item['category'], warranty_date="2023-11-16", return_date="2023-11-16")
         create_purchase(user_id, transaction_id['transaction_id'], created_purchase)
 
     return transaction_id
