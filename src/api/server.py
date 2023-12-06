@@ -214,7 +214,7 @@ async def openai_process_receipt(user_id: int, img_url: str, file: UploadFile = 
     items = receipt_json['items']  # This should be a list of items, where each item is a dictionary with 'item', 'price', and 'quantity' keys
     
     # Create a new transaction with the store name
-    created_transaction = NewTransaction(merchant=store_name, description="", date=receipt_date.replace('/', '-'))
+    created_transaction = NewTransaction(merchant=store_name, description="receipt", date=receipt_date)
 
     transaction_id = create_transaction(user_id, created_transaction)
     print("created transaction {0}".format(transaction_id))
