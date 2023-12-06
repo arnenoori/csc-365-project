@@ -231,6 +231,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
                 raise HTTPException(status_code=400, detail="date_to must be specified if date_from is specified")
             
             # set date_from to first day of current month and date_to to current day if not specified
+            now = datetime.now()
             if date_from is None:
                 date_from = datetime(now.year, now.month, 1).strftime('%Y-%m-%d')
             elif not is_first_day_of_month(date_from):
@@ -268,7 +269,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price) AS total
+                    SELECT category, SUM(price * quantity) AS total
                     FROM purchases
                     JOIN transactions on purchases.transaction_id = transactions.id
                     WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to)
@@ -277,6 +278,8 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
                 ), [{"user_id": user_id, "date_from": date_from, "date_to": date_to}]).all()
     except DBAPIError as error:
         print(f"DBAPIError returned: <<<{error}>>>")
+
+    print(actual_spending)
 
     # convert budgets to dictionary
     budgets_dict = dict(budgets._mapping)
@@ -299,6 +302,9 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
         else:
             comparisons[category] = {"actual": 0, "budget": budgets_dict[category]}
 
+    print(comparisons)
+    end_time = time.time()
+    print(f"time: {(end_time - start_time) * 1000}")    
     # in form of {category: {actual: amt, budget: amt}, ...}
     return comparisons
 
