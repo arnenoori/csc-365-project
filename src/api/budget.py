@@ -349,7 +349,6 @@ def get_all_purchases_categorized(user_id: int):
 # and return purchases that are going to expire within a week
 @router.get("/warranty", tags=["budgets"])
 def get_all_purchases_warranty(user_id: int):
-    start_time = time.time()
     ans = []
 
     try:
@@ -365,7 +364,7 @@ def get_all_purchases_warranty(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT item
+                    SELECT item, warranty_date, price, quantity, category
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
@@ -379,7 +378,40 @@ def get_all_purchases_warranty(user_id: int):
         print(f"Error returned: <<<{error}>>>")
 
     print(f"USER_{user_id}_PURCHASES_WARRANTY: {ans}")
-    end_time = time.time()
-    print(f"time: {(end_time - start_time) * 1000}")
+
+    return ans
+
+# Get all purchases that have a return date in a week
+@router.get("/return", tags=["budgets"])
+def get_all_purchases_return(user_id: int):
+    ans = []
+
+    try:
+        with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # ans stores query result as a list of dictionaries/json
+            ans = connection.execute(
+                sqlalchemy.text(
+                    """
+                    SELECT item, return_date, price, quantity, category
+                    FROM purchases AS p
+                    JOIN transactions AS t ON p.transaction_id = t.id
+                    WHERE t.user_id = :user_id
+                    AND p.return_date IS NOT NULL AND p.return_date != ''
+                    AND p.return_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '7 days'
+                    ORDER BY p.return_date
+                    """
+                ), {"user_id": user_id}
+            ).mappings().all()
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
+
+    print(f"USER_{user_id}_PURCHASES_RETURN: {ans}")
 
     return ans
