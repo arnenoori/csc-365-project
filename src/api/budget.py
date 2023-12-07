@@ -360,10 +360,6 @@ def get_all_purchases_warranty(user_id: int):
                 [{"user_id": user_id}]).fetchone()
             if result is None:
                 raise HTTPException(status_code=404, detail="User not found")
-            
-            # Calculate the date one week from now
-            one_week_from_now = datetime.now() + timedelta(weeks=1)
-            print(f"one_week_from_now: {one_week_from_now}")
 
             # ans stores query result as a list of dictionaries/json
             ans = connection.execute(
@@ -373,10 +369,10 @@ def get_all_purchases_warranty(user_id: int):
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
-                    AND p.warranty_date::timestamp <= :one_week_from_now
+                    AND p.warranty_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '7 days'
                     ORDER BY p.warranty_date
                     """
-                ), {"user_id": user_id, "one_week_from_now": one_week_from_now}
+                ), {"user_id": user_id}
             ).mappings().all()
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
