@@ -369,6 +369,7 @@ def get_all_purchases_warranty(user_id: int):
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
+                    AND p.warranty_date IS NOT NULL 
                     AND p.warranty_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '7 days'
                     ORDER BY p.warranty_date
                     """
