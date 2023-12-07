@@ -344,7 +344,7 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price) AS total
+                    SELECT category, ('$' || (SUM(price * quantity) / 100.0)::text) AS total
                     FROM purchases
                     WHERE transaction_id = :transaction_id
                     GROUP BY category

@@ -269,7 +269,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
             actual_spending = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price * quantity) AS total
+                    SELECT category, ('$' || (SUM(price * quantity) / 100.0)::text) AS total
                     FROM purchases
                     JOIN transactions on purchases.transaction_id = transactions.id
                     WHERE user_id = :user_id AND (date BETWEEN :date_from AND :date_to)
@@ -328,7 +328,7 @@ def get_all_purchases_categorized(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT category, SUM(price * quantity) AS total
+                    SELECT category, ('$' || (SUM(price * quantity) / 100.0)::text) AS total
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
@@ -364,12 +364,12 @@ def get_all_purchases_warranty(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT item, warranty_date, price, quantity, category
+                    SELECT item, warranty_date, ('$' || (SUM(price) / 100.0)::text) as price, quantity, category
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
                     AND p.warranty_date IS NOT NULL AND p.warranty_date != ''
-                    AND p.warranty_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '7 days'
+                    AND p.warranty_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '6 days'
                     ORDER BY p.warranty_date
                     """
                 ), {"user_id": user_id}
@@ -399,12 +399,12 @@ def get_all_purchases_return(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT item, return_date, price, quantity, category
+                    SELECT item, return_date, ('$' || (SUM(price) / 100.0)::text) as price, quantity, category
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
                     AND p.return_date IS NOT NULL AND p.return_date != ''
-                    AND p.return_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '7 days'
+                    AND p.return_date::DATE BETWEEN NOW()::DATE AND NOW()::DATE + INTERVAL '6 days'
                     ORDER BY p.return_date
                     """
                 ), {"user_id": user_id}
