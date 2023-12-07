@@ -300,7 +300,7 @@ def compare_budgets_to_actual_spending(user_id: int, date_from: str = None, date
         if category in actual_spending_dict:
             comparisons[category] = {"actual": actual_spending_dict[category], "budget": budgets_dict[category]}
         else:
-            comparisons[category] = {"actual": 0, "budget": budgets_dict[category]}
+            comparisons[category] = {"actual": "$0.00", "budget": "${:.2f}".format(budgets_dict[category] / 100.0)}
 
     print(comparisons)
     end_time = time.time()
