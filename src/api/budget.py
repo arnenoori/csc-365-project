@@ -317,6 +317,13 @@ def get_all_purchases_categorized(user_id: int):
 
     try: 
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
             # ans stores query result as list of dictionaries/json
             ans = connection.execute(
                 sqlalchemy.text(
@@ -347,8 +354,16 @@ def get_all_purchases_warranty(user_id: int):
 
     try:
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
             # Calculate the date one week from now
             one_week_from_now = datetime.now() + timedelta(weeks=1)
+            print(f"one_week_from_now: {one_week_from_now}")
 
             # ans stores query result as a list of dictionaries/json
             ans = connection.execute(

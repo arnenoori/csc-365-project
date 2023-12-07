@@ -323,6 +323,23 @@ def get_purchases_categorized_by_transaction(user_id: int, transaction_id: int):
 
     try: 
         with db.engine.begin() as connection:
+            # check if user exists
+            result = connection.execute(
+                sqlalchemy.text(check_user_query), 
+                [{"user_id": user_id}]).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # check if transaction exists and belongs to user
+            result = connection.execute(
+                sqlalchemy.text(check_transaction_query),
+                [{"transaction_id": transaction_id, "user_id": user_id}]
+            ).fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Transaction not found")
+            if result.user_id != user_id:
+                raise HTTPException(status_code=400, detail="Transaction does not belong to user")
+            
             # ans stores query result as list of dictionaries/json
             ans = connection.execute(
                 sqlalchemy.text(
