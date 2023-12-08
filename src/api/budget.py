@@ -364,7 +364,7 @@ def get_all_purchases_warranty(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT item, warranty_date, ('$' || ROUND((SUM(price) / 100.0), 2)::text) as price, quantity, category
+                    SELECT item, warranty_date, ('$' || ROUND((price / 100.0), 2)::text) as price, quantity, category
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
@@ -399,7 +399,7 @@ def get_all_purchases_return(user_id: int):
             ans = connection.execute(
                 sqlalchemy.text(
                     """
-                    SELECT item, return_date, ('$' || ROUND((SUM(price) / 100.0), 2)::text) as price, quantity, category
+                    SELECT item, return_date, ('$' || ROUND((price / 100.0), 2)::text) as price, quantity, category
                     FROM purchases AS p
                     JOIN transactions AS t ON p.transaction_id = t.id
                     WHERE t.user_id = :user_id
