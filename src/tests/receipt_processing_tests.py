@@ -1,5 +1,6 @@
 # pip install pytest-mock
 import src
+import code_under_test
 
 class TestUploadReceipt:
 

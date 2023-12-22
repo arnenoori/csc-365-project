@@ -1,0 +1,2 @@
+[tool.ruff]
+exclude = ["src/tests/receipt_processing_tests.py"]
