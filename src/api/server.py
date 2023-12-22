@@ -4,7 +4,6 @@ from pydantic import ValidationError
 from src.api import transactions, admin, users, purchases, budget
 from src import database as db
 import sqlalchemy
-from sqlalchemy.exc import DBAPIError
 import json
 import logging
 import boto3

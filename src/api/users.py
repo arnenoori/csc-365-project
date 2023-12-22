@@ -5,9 +5,7 @@ import sqlalchemy
 from src import database as db
 from sqlalchemy.exc import DBAPIError
 import re
-from datetime import datetime, timedelta
 import time
-import uuid
 
 router = APIRouter(
     prefix="/user",
